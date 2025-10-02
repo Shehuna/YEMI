@@ -411,9 +411,8 @@ const UserManagement = () => {
                     <label>New Password:</label>
                     <input
                         type="password"
-                        name="UserName"
-                        value={formData.UserName}
-                        onChange={handleInputChange}
+                        value={newPass}
+                        onChange={(e) => setNewPass(e.target.value)}
                         placeholder="Enter New Password"
                     />
                 </div>
@@ -431,6 +430,7 @@ const UserManagement = () => {
                     <button
                         className="btn-primary"
                         onClick={handlePasswordChange}
+                        disabled={!newPass || !confirmNewPass}
                     >
                         OK
                     </button>
