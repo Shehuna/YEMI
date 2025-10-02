@@ -17,6 +17,17 @@ const WorkspaceManagement = () => {
       useEffect(() => {
             fetchWorkspaces();
         }, []);
+
+        useEffect(() => {
+                if (isEditWorkspaceOpen && selectedWorkspace) {
+                    const workspace = workspaces.find(w => w.id === parseInt(selectedWorkspace));
+                    if (workspace) {
+                        setNewWorkspaceName(workspace.name)
+                    }
+                } else{
+                    setNewWorkspaceName('')
+                }
+            }, [isEditWorkspaceOpen, selectedWorkspace, workspaces]);
     
     
        const fetchWorkspaces = async () => {
@@ -43,7 +54,7 @@ const WorkspaceManagement = () => {
    
    const handleEditWorkspace = async () => {
     if (!selectedWorkspace || !newWorkspaceName) {
-        alert('Please select a workspace and enter a new name.');
+        toast.error('Please select a workspace and enter a new name.')
         return;
     }
 
@@ -60,9 +71,10 @@ const WorkspaceManagement = () => {
         setNewWorkspaceName('');
         setSelectedWorkspace('');
         setIsEditWorkspaceOpen(false);
+        toast.success('Worksapce is updated successfully')
     } catch (err) {
         setError(err.message);
-        console.error('Error updating workspace:', err);
+        toast.error('Error updating workspace')
     }
 };
 
