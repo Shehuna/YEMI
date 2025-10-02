@@ -33,7 +33,7 @@ const WorkspaceManagement = () => {
        const fetchWorkspaces = async () => {
         setLoading(true);
         try {
-          const response = await fetch(`${API_URL}/api/Workspace`,{
+          const response = await fetch(`${API_URL}/api/Workspace/GetWorkspace`,{
             method: 'GET'
           });
           
