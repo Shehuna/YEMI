@@ -28,7 +28,6 @@ function App() {
   }, []);
   const handleLogin = (user) => {
     setIsAuthenticated(true);
-    
     fetchInitialData();
   };
 

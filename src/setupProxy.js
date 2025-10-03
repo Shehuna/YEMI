@@ -6,7 +6,7 @@ module.exports = function(app) {
     '/api',
     createProxyMiddleware({
       // target: 'http://localhost:7204',
-      target: 'https://www.yamiconapi.somee.com',
+      target: 'http://www.yamiconapi.somee.com',
       changeOrigin: true,
       secure: false,
       pathRewrite: {

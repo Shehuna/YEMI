@@ -4,6 +4,7 @@ import Modal from '../Modals/Modal';
 const JobManagment = () => {
     const [selectedJob, setSelectedJob] = useState('');
     const [newJobName, setNewJobName] = useState('');
+    const [user, setUser] = useState('');
     const [newJobStatus, setNewJobStatus] = useState(1);
     const [newJobDescription, setNewJobDescription] = useState('');
     const [selectedProject, setSelectedProject] = useState('');
@@ -16,6 +17,8 @@ const JobManagment = () => {
 
    useEffect(() => {
             fetchInitialData();
+            const user = JSON.parse(localStorage.getItem('user'));
+            setUser(user.id)
        }, []);
 
     useEffect(() => {
@@ -47,7 +50,8 @@ const JobManagment = () => {
                 body: JSON.stringify({
                     name: newJobName,
                     description: newJobDescription,
-                    projectId: selectedProject
+                    projectId: selectedProject,
+                    userId: user
                 })
             });
 

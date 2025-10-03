@@ -322,6 +322,7 @@ const Dashboard = ({
   const handleUploadDocumentWrapper = async (documentName, file, noteId) => { 
     try {
       console.log("Uploading document via wrapper:", { documentName, file, noteId });
+      
       const result = await onUploadDocument(documentName, file, noteId);
       if (noteId) {
         await fetchDocumentCount(noteId);

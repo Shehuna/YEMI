@@ -5,7 +5,7 @@ const EditNoteModal = ({ note, onClose, refreshNotes, updateNote, uploadDocument
   const [isEditable, setIsEditable] = useState(true);
   const [journalData, setJournalData] = useState({
     date: '',
-    projectId: '',
+    userId: '',
     jobId: '',
     note: ''
   });
@@ -64,7 +64,7 @@ const EditNoteModal = ({ note, onClose, refreshNotes, updateNote, uploadDocument
       setIsLoadingDocuments(true);
       setError(null);
 
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/Documents?siteNoteId=${referenceId}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/Documents/GetDocumentMetadataByReference?siteNoteId=${referenceId}`, {
         headers: { "accept": "application/json" }
       });
 

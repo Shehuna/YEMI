@@ -102,22 +102,37 @@ const NewNoteModal = ({
         setApiError(null);
 
         try {
-
+            
             const user = JSON.parse(localStorage.getItem('user'));
-            const noteData = {
-                Note: noteContent,
-                Date: new Date(selectedDate).toISOString(),
-                JobId: selectedJob,
-                UserId: user.id,
-            };
-
-            const savedNote = await addSiteNote(noteData);
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/SiteNote/AddSiteNote`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    note: noteContent,
+                    date: new Date(selectedDate).toISOString(),
+                    jobId: selectedJob,
+                    userId: user.id,
+                })
+            });
+            /* const noteData = {
+                note: noteContent,
+                date: new Date(selectedDate).toISOString(),
+                jobId: selectedJob,
+                userId: user.id,
+            }; */
+            /* if(response.ok){
+                const siteNoteId = response.siteNoteId;
+            } */
+            /* const savedNote = await addSiteNote(noteData);
             const siteNoteId = savedNote.siteNoteId; 
 
             if (!siteNoteId) {
                 throw new Error("Failed to retrieve SiteNoteId from the saved note.");
-            }
-
+            } */
+            const siteNoteId = response.siteNoteId
+            console.log(siteNoteId)
             console.log("Journal note saved successfully. SiteNoteId:", siteNoteId);
 
             for (const doc of documents) {

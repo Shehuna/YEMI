@@ -3,8 +3,27 @@ import Modal from '../Modals/Modal';
 import toast from 'react-hot-toast';
 
 const WorkspaceManagement = () => {
+    
+    const [workspaceName, setWorkspaceName] = useState('');
+    const [ownerUserID, setOwnerUserID] = useState('');
+    const [ownerType, setOwnerType] = useState('');
+    const [ownerName, setOwnerName] = useState('');
+    const [addressLine1, setAddressLine1] = useState('');
+    const [addressLine2, setAddressLine2] = useState('');
+    const [city, setCity] = useState('');
+    const [state, setState] = useState('');
+    const [country, setCountry] = useState('');
+    const [postalCode, setPostalCode] = useState('');
+    const [billingAddressLine1, setBillingAddressLine1] = useState('');
+    const [billingAddressLine2, setBillingAddressLine2] = useState('');
+    const [billingCity, setBillingCity] = useState('');
+    const [billingState, setBillingState] = useState('');
+    const [billingCountry, setBillingCountry] = useState('');
+    const [billingPostalCode, setBillingPostalCode] = useState('');
+    const [phone, setPhone] = useState('');
+    const [taxID, setTaxID] = useState('');
+    const [status, setStatus] = useState(2);
 
-    const [newWorkspaceName, setNewWorkspaceName] = useState('');
     const [isAddWorkspaceOpen, setIsAddWorkspaceOpen] = useState(false);
     const [isEditWorkspaceOpen, setIsEditWorkspaceOpen] = useState(false);
     const [selectedWorkspace, setSelectedWorkspace] = useState('');
@@ -16,16 +35,18 @@ const WorkspaceManagement = () => {
 
       useEffect(() => {
             fetchWorkspaces();
+            const user = JSON.parse(localStorage.getItem('user'));
+            setOwnerUserID(user.id)
         }, []);
 
         useEffect(() => {
                 if (isEditWorkspaceOpen && selectedWorkspace) {
                     const workspace = workspaces.find(w => w.id === parseInt(selectedWorkspace));
                     if (workspace) {
-                        setNewWorkspaceName(workspace.name)
+                        setWorkspaceName(workspace.name)
                     }
                 } else{
-                    setNewWorkspaceName('')
+                    setWorkspaceName('')
                 }
             }, [isEditWorkspaceOpen, selectedWorkspace, workspaces]);
     
@@ -33,7 +54,7 @@ const WorkspaceManagement = () => {
        const fetchWorkspaces = async () => {
         setLoading(true);
         try {
-          const response = await fetch(`${API_URL}/api/Workspace`,{
+          const response = await fetch(`${API_URL}/api/Workspace/GetWorkspace`,{
             method: 'GET'
           });
           
@@ -53,22 +74,22 @@ const WorkspaceManagement = () => {
 
    
    const handleEditWorkspace = async () => {
-    if (!selectedWorkspace || !newWorkspaceName) {
+    if (!selectedWorkspace || !workspaceName) {
         toast.error('Please select a workspace and enter a new name.')
         return;
     }
 
     try {
-        const response = await fetch(`${API_URL}/api/Workspace/${selectedWorkspace}`, {
+        const response = await fetch(`${API_URL}/api/Workspace/UpdateWorkspace${selectedWorkspace}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: selectedWorkspace, name: newWorkspaceName }),
+            body: JSON.stringify({ id: selectedWorkspace, name: workspaceName }),
         });
 
         if (!response.ok) throw new Error('Failed to update workspace');
 
         fetchWorkspaces();
-        setNewWorkspaceName('');
+        setWorkspaceName('');
         setSelectedWorkspace('');
         setIsEditWorkspaceOpen(false);
         toast.success('Worksapce is updated successfully')
@@ -84,7 +105,15 @@ const WorkspaceManagement = () => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
-                name: newWorkspaceName }),
+                name: workspaceName,
+                ownerUserID: ownerUserID,
+                ownerType: ownerType,
+                ownerName: ownerName,
+                addressLine1: addressLine1,
+                city: city,
+                country: country,
+                status: status
+            }),
         
             });
 
@@ -92,7 +121,7 @@ const WorkspaceManagement = () => {
         
         toast.success('Workspace Created Successfully')
         fetchWorkspaces(); 
-        setNewWorkspaceName('');
+        setWorkspaceName('');
         setIsAddWorkspaceOpen(false);
     } catch (err) {
         setError(err.message);
@@ -128,18 +157,73 @@ const WorkspaceManagement = () => {
         </div>
          <Modal isOpen={isAddWorkspaceOpen} onClose={() => setIsAddWorkspaceOpen(false)} title="Add Workspace">
                 <div className="settings-form">
-                    <div className="form-group">
-                        <label>Workspace Name:</label>
-                        <input
-                            type="text"
-                            value={newWorkspaceName}
-                            onChange={(e) => setNewWorkspaceName(e.target.value)}
-                            placeholder="Enter workspace name"
-                            required
-                        />
+                  <div className="settings-form user-form-grid">
+                        <div className="form-group">
+                            <label>Workspace Name:</label>
+                            <input
+                                type="text"
+                                value={workspaceName}
+                                onChange={(e) => setWorkspaceName(e.target.value)}
+                                placeholder="Enter workspace name"
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>Owner Type:</label>
+                            <select
+                                value={ownerType}
+                                onChange={(e) => setOwnerType(e.target.value)}
+                                
+                            >
+                                <option value="1">Individual</option>
+                                <option value="2">Company</option>
+                                
+                            </select>
+                        </div>
+                        <div className="form-group">
+                            <label>Owner Name:</label>
+                            <input
+                                type="text"
+                                value={ownerName}
+                                onChange={(e) => setOwnerName(e.target.value)}
+                                placeholder="Enter Owner name"
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>Address Line 1:</label>
+                            <input
+                                type="text"
+                                value={addressLine1}
+                                onChange={(e) => setAddressLine1(e.target.value)}
+                                placeholder="Enter address Line 1"
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>City:</label>
+                            <input
+                                type="text"
+                                value={city}
+                                onChange={(e) => setCity(e.target.value)}
+                                placeholder="Enter city"
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>Country:</label>
+                            <input
+                                type="text"
+                                value={country}
+                                onChange={(e) => setCountry(e.target.value)}
+                                placeholder="Enter Country"
+                                required
+                            />
+                        </div>
                     </div>
+                    
                     <div className="modal-footer">
-                        <button className="btn-primary" onClick={handleAddWorkspace} disabled={!newWorkspaceName}>
+                        <button className="btn-primary" onClick={handleAddWorkspace} >
                             Add
                         </button>
                         <button className="btn-close" onClick={() => setIsAddWorkspaceOpen(false)}>
@@ -155,14 +239,24 @@ const WorkspaceManagement = () => {
                 <label>Workspace Name:</label>
                 <input
                     type="text"
-                    value={newWorkspaceName}
-                    onChange={(e) => setNewWorkspaceName(e.target.value)}
+                    value={workspaceName}
+                    onChange={(e) => setWorkspaceName(e.target.value)}
+                    placeholder="Enter new workspace name"
+                    required
+                />
+            </div>
+            <div className="form-group">
+                <label>Workspace Name:</label>
+                <input
+                    type="text"
+                    value={workspaceName}
+                    onChange={(e) => setWorkspaceName(e.target.value)}
                     placeholder="Enter new workspace name"
                     required
                 />
             </div>
             <div className="modal-footer">
-                <button className="btn-primary" onClick={handleEditWorkspace} disabled={!newWorkspaceName || !selectedWorkspace}>
+                <button className="btn-primary" onClick={handleEditWorkspace} >
                     Save
                 </button>
                 <button className="btn-close" onClick={() => setIsEditWorkspaceOpen(false)}>

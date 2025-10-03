@@ -36,7 +36,6 @@ const UserManagement = () => {
                         Lname: user.lname,
                         UserName: user.userName,
                         Email: user.email,
-                        Role: user.role,
                         Status: user.status,
                         profilePictureBase64: user.profilePictureBase64
                     })
@@ -48,7 +47,6 @@ const UserManagement = () => {
                     UserName: '',
                     Email: '',
                     Password: '',
-                    Role: 'Admin',
                     profilePictureBase64: null
                 })
             }

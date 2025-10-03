@@ -5,6 +5,7 @@ const ProjectManagement = () => {
      const [projects, setProjects] = useState([])
      const [selectedProject, setSelectedProject] = useState('')
      const [newProjectName, setNewProjectName] = useState('');
+     const [user, setUser] = useState('');
      const [isAddProjectOpen, setIsAddProjectOpen] = useState(false);
      const [isEditProjectOpen, setIsEditProjectOpen] = useState(false);
      const [newProjectDescription, setNewProjectDescription] = useState('');
@@ -19,12 +20,14 @@ const ProjectManagement = () => {
       useEffect(() => {
             fetchWorkspaces();
             fetchProjects();
+            const user = JSON.parse(localStorage.getItem('user'));
+            setUser(user.id)
         }, []);
          
     const fetchWorkspaces = async () => {
         setLoading(true);
         try {
-        const response = await fetch(`${API_URL}/api/Workspace`,{
+        const response = await fetch(`${API_URL}/api/Workspace/GetWorkspace`,{
             method: 'GET'
         });
         
@@ -88,7 +91,8 @@ const ProjectManagement = () => {
                 body: JSON.stringify({ 
                     name: newProjectName, 
                     description: newProjectDescription, 
-                    workspaceId: parseInt(selectedWorkspace) 
+                    workspaceId: parseInt(selectedWorkspace),
+                    userId: user
                 })
             });
 
