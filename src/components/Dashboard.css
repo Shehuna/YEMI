@@ -41,17 +41,22 @@
 
 .responsive-table-container th:nth-child(4), 
 .responsive-table-container td:nth-child(4) {
-  width: 300px; 
-  text-align: left;
+  width: 70px;
 }
 
 .responsive-table-container th:nth-child(5), 
 .responsive-table-container td:nth-child(5) {
-  width: 70px;
+  width: 300px; 
+  text-align: left;
 }
 
 .responsive-table-container th:nth-child(6), 
 .responsive-table-container td:nth-child(6) {
+  width: 70px;
+}
+
+.responsive-table-container th:nth-child(7), 
+.responsive-table-container td:nth-child(7) {
   width: 90px;
 }
 

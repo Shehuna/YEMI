@@ -100,8 +100,10 @@ function App() {
       const text = await response.text();
   
       if (response.ok) {
+        console.log()
         const data = JSON.parse(text);
-        setNotes(data);
+        
+        setNotes(data.siteNotes);
         // fetchAllDocumentCounts(data);
         setLoading(false);  
       } else {

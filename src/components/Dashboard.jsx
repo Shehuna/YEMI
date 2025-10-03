@@ -156,6 +156,7 @@ const Dashboard = ({
   }, [notes, documentCounts, loadingCounts]);
 
   const filteredNotes = useMemo(() => {
+    
     let result = [...notes];
     
     result.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -675,7 +676,7 @@ const Dashboard = ({
         <table>
           <thead>
             <tr>
-              {['date', 'project', 'job', 'note', 'userName', 'Attached File'].map(col => (
+              {['date', 'workspace', 'project', 'job', 'note', 'userName', 'Attached File'].map(col => (
                 <th 
                   key={col} 
                   draggable 
@@ -714,6 +715,7 @@ const Dashboard = ({
                   day: 'numeric'
                 })}
                 </td>
+                <td title={note.workspace}>{note.workspace}</td>
                 <td title={note.project}>{note.project}</td>
                 <td title={note.job}>{note.job}</td>
                 <td

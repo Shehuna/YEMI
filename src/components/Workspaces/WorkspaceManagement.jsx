@@ -33,7 +33,7 @@ const WorkspaceManagement = () => {
        const fetchWorkspaces = async () => {
         setLoading(true);
         try {
-          const response = await fetch(`${API_URL}/api/Workspace/GetWorkspace`,{
+          const response = await fetch(`${API_URL}/api/Workspace`,{
             method: 'GET'
           });
           
@@ -59,7 +59,7 @@ const WorkspaceManagement = () => {
     }
 
     try {
-        const response = await fetch(`${API_URL}/api/Workspace/UpdateWorkspace/${selectedWorkspace}`, {
+        const response = await fetch(`${API_URL}/api/Workspace/${selectedWorkspace}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id: selectedWorkspace, name: newWorkspaceName }),

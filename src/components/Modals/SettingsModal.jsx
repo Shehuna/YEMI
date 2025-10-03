@@ -92,11 +92,11 @@ useEffect(() => {
         try {
           const projectsUrl = `${process.env.REACT_APP_API_BASE_URL}/api/Project/GetProjects`;
           const jobsUrl = `${process.env.REACT_APP_API_BASE_URL}/api/Job/GetJobs`;
-
+          const usersURL = `${process.env.REACT_APP_API_BASE_URL}/api/UserManagement/GetUsers`;
 
             console.log('Fetching from:', projectsUrl, jobsUrl);
 
-            const [projectsRes, jobsRes] = await Promise.all([
+            const [projectsRes, jobsRes, userRes] = await Promise.all([
                 fetch(projectsUrl, {
                     method: 'GET',
                     headers: {
@@ -108,22 +108,32 @@ useEffect(() => {
                     headers: {
                         'Content-Type': 'application/json',
                     },
+                }),
+                fetch(usersURL, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
                 })
             ]);
 
             if (!projectsRes.ok) throw new Error(`Projects API error: ${projectsRes.status}`);
             if (!jobsRes.ok) throw new Error(`Jobs API error: ${jobsRes.status}`);
+            if (!userRes.ok) throw new Error(`Jobs API error: ${userRes.status}`);
 
             var projectsData = await projectsRes.json();
             var jobsData = await jobsRes.json();
+            var userData = await userRes.json()
 
             projectsData = projectsData.projects || [];
             jobsData = jobsData.jobs || [];
+            userData = userData.users || []
 
             console.log('Received data:', { projectsData, jobsData });
 
             setProjects(projectsData);
             setJobs(jobsData);
+            setUsers(userData)
         } catch (err) {
             setError(err.message);
             console.error('API Error:', err);
@@ -197,7 +207,7 @@ useEffect(() => {
                     >
                         <option value="">Select User</option>
                         {users.map(user => (
-                            <option key={user.id} value={user.id}>{user.name}</option>
+                            <option key={user.id} value={user.id}>{user.userName}</option>
                         ))}
                     </select>
                 </div>
