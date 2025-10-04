@@ -107,7 +107,7 @@ const Dashboard = ({
     }
   };
 
-  const fetchDocumentCount = async (siteNoteId) => {
+  /* const fetchDocumentCount = async (siteNoteId) => {
     if (!siteNoteId) return;
     
     try {
@@ -141,7 +141,7 @@ const Dashboard = ({
     } finally {
       setLoadingCounts(prev => ({ ...prev, [siteNoteId]: false }));
     }
-  };
+  }; */
 
   useEffect(() => {
     // const fetchAllDocumentCounts = async () => {
@@ -324,9 +324,9 @@ const Dashboard = ({
       console.log("Uploading document via wrapper:", { documentName, file, noteId });
       
       const result = await onUploadDocument(documentName, file, noteId);
-      if (noteId) {
+      /* if (noteId) {
         await fetchDocumentCount(noteId);
-      }
+      } */
       refreshNotes(); 
       return result;
     } catch (error) {
@@ -338,9 +338,9 @@ const Dashboard = ({
   const handleDeleteDocumentWrapper = async (docId, noteId) => {
     try {
       await onDeleteDocument(docId); 
-      if (noteId) {
+      /* if (noteId) {
         await fetchDocumentCount(noteId);
-      }
+      } */
       refreshNotes(); 
     } catch (error) {
       console.error('Error deleting document in wrapper:', error);
@@ -432,7 +432,9 @@ const Dashboard = ({
   };
 
   const handleEdit = (note) => {
+
     setSelectedNote(note);
+    console.log(selectedNote)
     setShowEditModal(true);
   };
 

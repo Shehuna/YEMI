@@ -152,13 +152,13 @@ function App() {
 
     const formData = new FormData();
     formData.append('Name', documentName); 
-    formData.append('Data', file);      
+    formData.append('File', file);      
     formData.append('SiteNoteId', siteNoteId);
     formData.append('UserId', userId);
     console.log("FormData prepared:", { documentName, file, siteNoteId, userId });
 
     try {
-        const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/Documents`, { 
+        const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/Documents/AddDocument`, { 
             method: 'POST',
             body: formData,
         });
@@ -177,9 +177,9 @@ function App() {
         // }
 
         return {
-            id: result.document.id, 
-            name: result.document.name, 
-            fileName: result.document.fileName, 
+            id: result.document.Id, 
+            name: result.document.Name, 
+            fileName: result.document.FileName, 
         };
     } catch (error) {
         console.error('Failed to upload document:', error);
@@ -302,15 +302,20 @@ function App() {
   
   const addSiteNote = async (siteNoteData) => {
     try {
-    const formData = new FormData();
+    /* const formData = new FormData();
     formData.append("Note", siteNoteData.Note);
     formData.append("Date", siteNoteData.Date);
     formData.append("JobId", siteNoteData.JobId);
-    formData.append("UserId", siteNoteData.UserId);
+    formData.append("UserId", siteNoteData.UserId); */
 
     const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/SiteNote/AddSiteNote`, {
       method: "POST",
-      body: formData,
+      headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(
+                   siteNoteData
+                )
     });
 
 

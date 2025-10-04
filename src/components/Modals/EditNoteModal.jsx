@@ -14,7 +14,9 @@ const EditNoteModal = ({ note, onClose, refreshNotes, updateNote, uploadDocument
   const [showDocumentModal, setShowDocumentModal] = useState(false);
   const [newDocument, setNewDocument] = useState({
     name: '',
-    file: null
+    file: null,
+    siteNoteId :'',
+    userId: ''
   });
 
   const [activeTab, setActiveTab] = useState('journal');
@@ -24,15 +26,18 @@ const EditNoteModal = ({ note, onClose, refreshNotes, updateNote, uploadDocument
 
   useEffect(() => {
     if (note) {
-      const creationDate = note.createdAt || note.dateCreated || note.createdDate || note.date;
-      
+      const creationDate = note.timeStamp;
+      //|| note.dateCreated || note.createdDate || note.date
       if (creationDate) {
         const createdAt = new Date(creationDate);
         const now = new Date();
         const hoursDiff = (now - createdAt) / (1000 * 60 * 60); 
-        
-       
-        setIsEditable(true);
+        if(hoursDiff > 24){
+           setIsEditable(false);
+        }
+       else{
+        setIsEditable(true)
+       }
       } else {
         setIsEditable(true);
       }
@@ -150,7 +155,7 @@ const EditNoteModal = ({ note, onClose, refreshNotes, updateNote, uploadDocument
   const handleAddDocument = () => {
     if (!isEditable) return;
     
-    setNewDocument({ name: '', file: null });
+    setNewDocument({ name: '', file: null, siteNoteId: '', userId: '' });
     setShowDocumentModal(true);
     setError(null);
   };
@@ -182,12 +187,19 @@ const EditNoteModal = ({ note, onClose, refreshNotes, updateNote, uploadDocument
       setIsSubmitting(true);
 
       const savedDoc = await uploadDocument(
-        note.id, 
+        
+          newDocument.name,
+          newDocument.file,
+          note.id
+        
+
+        /* note.id, 
         null, 
+        
         {
           name: newDocument.name,
           file: newDocument.file 
-        }
+        } */
       );
 
       const newDocWithDownloadUrl = {
