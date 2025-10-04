@@ -441,7 +441,7 @@ const Dashboard = ({
   const handleDelete = async (noteId) => {
     if (window.confirm('Are you sure you want to delete this note?')) {
       try { 
-        await fetch(`/api/notes/${noteId}`, { method: 'DELETE' });
+        await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/SiteNote/DeleteSiteNote/${noteId}`, { method: 'DELETE' });
         refreshNotes();
       } catch (error) {
         console.error('Error deleting note:', error);
