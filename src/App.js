@@ -267,16 +267,28 @@ function App() {
   };
 
   const updateNote = async (id, updatedData) => {
+    console.log(updatedData)
     try {
       const url = `${process.env.REACT_APP_API_BASE_URL}/api/SiteNote/UpdateSiteNote/${id}`;
 
-      const formData = new FormData();
+      const UpdatedNoteData = {
+          note: updatedData.Note,
+          date: updatedData.Date,
+          jobId: updatedData.JobId,
+          userId: updatedData.UserId,
+        };
+
+      /* const formData = new FormData();
       formData.append("Note", updatedData.Note);
-      formData.append("Date", updatedData.Date);
+      formData.append("Date", updatedData.Date); */
 
       const response = await fetch(url, {
         method: "PUT",
-        body: formData
+        headers: {
+                    'Content-Type': 'application/json',
+                },
+                
+        body: JSON.stringify(UpdatedNoteData)
       });
       
       if (!response.ok) {

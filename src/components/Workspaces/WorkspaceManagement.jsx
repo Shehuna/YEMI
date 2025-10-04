@@ -44,6 +44,12 @@ const WorkspaceManagement = () => {
                     const workspace = workspaces.find(w => w.id === parseInt(selectedWorkspace));
                     if (workspace) {
                         setWorkspaceName(workspace.name)
+                        setOwnerType(workspace.ownerType)
+                        setOwnerName(workspace.ownerName)
+                        setAddressLine1(workspace.addressLine1)
+                        setCity(workspace.city)
+                        setCountry(workspace.country)
+                        setStatus(workspace.status)
                     }
                 } else{
                     setWorkspaceName('')
@@ -80,10 +86,20 @@ const WorkspaceManagement = () => {
     }
 
     try {
-        const response = await fetch(`${API_URL}/api/Workspace/UpdateWorkspace${selectedWorkspace}`, {
+        const response = await fetch(`${API_URL}/api/Workspace/UpdateWorkspace/${selectedWorkspace}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: selectedWorkspace, name: workspaceName }),
+            body: JSON.stringify({ 
+                id: selectedWorkspace,
+                name: workspaceName,
+                ownerUserID: ownerUserID,
+                ownerType: ownerType,
+                ownerName: ownerName,
+                addressLine1: addressLine1,
+                city: city,
+                country: country,
+                status: status
+             }),
         });
 
         if (!response.ok) throw new Error('Failed to update workspace');
@@ -235,35 +251,80 @@ const WorkspaceManagement = () => {
 
         <Modal isOpen={isEditWorkspaceOpen} onClose={() => setIsEditWorkspaceOpen(false)} title="Edit Workspace">
         <div className="settings-form">
-            <div className="form-group">
-                <label>Workspace Name:</label>
-                <input
-                    type="text"
-                    value={workspaceName}
-                    onChange={(e) => setWorkspaceName(e.target.value)}
-                    placeholder="Enter new workspace name"
-                    required
-                />
-            </div>
-            <div className="form-group">
-                <label>Workspace Name:</label>
-                <input
-                    type="text"
-                    value={workspaceName}
-                    onChange={(e) => setWorkspaceName(e.target.value)}
-                    placeholder="Enter new workspace name"
-                    required
-                />
-            </div>
-            <div className="modal-footer">
-                <button className="btn-primary" onClick={handleEditWorkspace} >
-                    Save
-                </button>
-                <button className="btn-close" onClick={() => setIsEditWorkspaceOpen(false)}>
-                    Cancel
-                </button>
-            </div>
-        </div>
+                  <div className="settings-form user-form-grid">
+                        <div className="form-group">
+                            <label>Workspace Name:</label>
+                            <input
+                                type="text"
+                                value={workspaceName}
+                                onChange={(e) => setWorkspaceName(e.target.value)}
+                                placeholder="Enter workspace name"
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>Owner Type:</label>
+                            <select
+                                value={ownerType}
+                                onChange={(e) => setOwnerType(e.target.value)}
+                                
+                            >
+                                <option value="1">Individual</option>
+                                <option value="2">Company</option>
+                                
+                            </select>
+                        </div>
+                        <div className="form-group">
+                            <label>Owner Name:</label>
+                            <input
+                                type="text"
+                                value={ownerName}
+                                onChange={(e) => setOwnerName(e.target.value)}
+                                placeholder="Enter Owner name"
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>Address Line 1:</label>
+                            <input
+                                type="text"
+                                value={addressLine1}
+                                onChange={(e) => setAddressLine1(e.target.value)}
+                                placeholder="Enter address Line 1"
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>City:</label>
+                            <input
+                                type="text"
+                                value={city}
+                                onChange={(e) => setCity(e.target.value)}
+                                placeholder="Enter city"
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>Country:</label>
+                            <input
+                                type="text"
+                                value={country}
+                                onChange={(e) => setCountry(e.target.value)}
+                                placeholder="Enter Country"
+                                required
+                            />
+                        </div>
+                    </div>
+                    
+                    <div className="modal-footer">
+                        <button className="btn-primary" onClick={handleEditWorkspace} >
+                            Add
+                        </button>
+                        <button className="btn-close" onClick={() => setIsEditWorkspaceOpen(false)}>
+                            Cancel
+                        </button>
+                    </div>
+                </div>
     </Modal>
     </div>
 

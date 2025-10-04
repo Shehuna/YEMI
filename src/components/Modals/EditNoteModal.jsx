@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import './EditNoteModal.css';
 
 const EditNoteModal = ({ note, onClose, refreshNotes, updateNote, uploadDocument, projects = [], jobs = [] }) => {
+  
   const [isEditable, setIsEditable] = useState(true);
   const [journalData, setJournalData] = useState({
     date: '',
@@ -83,7 +84,7 @@ const EditNoteModal = ({ note, onClose, refreshNotes, updateNote, uploadDocument
       setDocuments(docs.map(doc => {
         const fileType = doc.fileName?.split('.').pop();
         
-        const downloadApiTriggerUrl = `${process.env.REACT_APP_API_BASE_URL}/api/Documents/Download/${doc.id}`;
+        const downloadApiTriggerUrl = `${process.env.REACT_APP_API_BASE_URL}/api/Documents/DownloadDocument/${doc.id}`;
 
         return {
           ...doc,
@@ -206,7 +207,7 @@ const EditNoteModal = ({ note, onClose, refreshNotes, updateNote, uploadDocument
         ...savedDoc,
         fileType: getMimeType(savedDoc.fileName).split('/')[1], 
         fileUrl: null, 
-        downloadApiTriggerUrl: `${process.env.REACT_APP_API_BASE_URL}/api/Documents/DownloadDocument?siteNoteId=${savedDoc.id}`
+        downloadApiTriggerUrl: `${process.env.REACT_APP_API_BASE_URL}/api/Documents/DownloadDocument/${savedDoc.id}`
       };
       setDocuments(docs => [...docs, newDocWithDownloadUrl]);
 
@@ -252,6 +253,7 @@ const EditNoteModal = ({ note, onClose, refreshNotes, updateNote, uploadDocument
 
 
   const handleSaveNote = async () => {
+    console.log()
     if (!isEditable) {
       setError('Cannot edit notes older than 24 hours');
       return;
@@ -271,8 +273,11 @@ const EditNoteModal = ({ note, onClose, refreshNotes, updateNote, uploadDocument
       }
   
       const result = await updateNote(note.id, {
-        Date: journalData.date,
-        Note: journalData.note
+        Date: new Date(journalData.date).toISOString(), 
+        Note: journalData.note,
+        JobId: journalData.jobId,
+        UserId: journalData.userId
+        //UserId: journalData.userId
       });
   
       if (result && (result.success || result.id || result.message)) {
