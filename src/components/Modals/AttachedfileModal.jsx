@@ -52,7 +52,7 @@ const AttachedFileModal = ({
       setIsLoadingDocuments(true);
       setError(null);
 
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/Documents?siteNoteId=${referenceId}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/Documents/GetDocumentMetadataByReference?siteNoteId=${referenceId}`, {
         headers: { "accept": "application/json" }
       });
 
