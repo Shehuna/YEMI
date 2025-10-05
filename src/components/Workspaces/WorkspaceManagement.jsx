@@ -6,7 +6,7 @@ const WorkspaceManagement = () => {
     
     const [workspaceName, setWorkspaceName] = useState('');
     const [ownerUserID, setOwnerUserID] = useState('');
-    const [ownerType, setOwnerType] = useState('');
+    const [ownerType, setOwnerType] = useState(1);
     const [ownerName, setOwnerName] = useState('');
     const [addressLine1, setAddressLine1] = useState('');
     const [addressLine2, setAddressLine2] = useState('');
@@ -103,9 +103,15 @@ const WorkspaceManagement = () => {
         });
 
         if (!response.ok) throw new Error('Failed to update workspace');
-
+        
         fetchWorkspaces();
-        setWorkspaceName('');
+        setWorkspaceName('')
+        setOwnerType(1)
+        setOwnerName('')
+        setAddressLine1('')
+        setCity('')
+        setCountry('')
+        setStatus(2)
         setSelectedWorkspace('');
         setIsEditWorkspaceOpen(false);
         toast.success('Worksapce is updated successfully')
@@ -137,7 +143,13 @@ const WorkspaceManagement = () => {
         
         toast.success('Workspace Created Successfully')
         fetchWorkspaces(); 
-        setWorkspaceName('');
+        setWorkspaceName('')
+        setOwnerType(1)
+        setOwnerName('')
+        setAddressLine1('')
+        setCity('')
+        setCountry('')
+        setStatus(2)
         setIsAddWorkspaceOpen(false);
     } catch (err) {
         setError(err.message);
