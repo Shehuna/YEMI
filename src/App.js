@@ -7,6 +7,10 @@ import "./App.css";
 
 function App() {
   const [notes, setNotes] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
   const [projects, setProjects] = useState([]); 
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,7 +21,7 @@ function App() {
 
   useEffect(() => {
     fetchInitialData();
-    fetchNotes();
+    //fetchNotes();
      const user = localStorage.getItem('user');
     if (user) {
       setIsAuthenticated(true);
@@ -87,9 +91,9 @@ function App() {
     setDocumentCounts(counts);
   };
 
-  const fetchNotes = async () => {
+  const fetchNotes = async (page = 1, size = pageSize) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/SiteNote/GetSiteNotes`, {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/SiteNote/GetSiteNotes?pageNumber=${page}&pageSize=${size}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json; charset=utf-8",
@@ -101,8 +105,13 @@ function App() {
       if (response.ok) {
         console.log()
         const data = JSON.parse(text);
-        
+        console.log(data.totalCount)
+        console.log(data.totalPages)
         setNotes(data.siteNotes);
+        setCurrentPage(data.pageNumber)
+        setPageSize(data.pageSize)
+        setTotalCount(data.totalCount)
+        setTotalPages(data.totalPages)
         // fetchAllDocumentCounts(data);
         setLoading(false);  
       } else {
@@ -112,6 +121,41 @@ function App() {
     } catch (error) {
       console.error("Error fetching notes:", error);
     }
+  };
+
+  // Page change handler
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+      fetchNotes(newPage);
+    }
+  };
+
+  // Page size change handler
+  const handlePageSizeChange = (newSize) => {
+    setPageSize(newSize);
+    setCurrentPage(1); // Reset to first page when changing size
+    fetchNotes(1, newSize);
+  };
+
+    // Generate page numbers for pagination controls
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+    
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+    
+    // Adjust if we're at the end
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+    
+    return pages;
   };
 
   const fetchDocumentsByReference = async (noteId) => {
@@ -423,6 +467,13 @@ function App() {
                 ) : (
                   <Dashboard 
                     notes={notes} 
+                    currentPage={currentPage}
+                    pageSize={pageSize}
+                    totalPages={totalPages}
+                    totalCount={totalCount}
+                    handlePageSize={handlePageSizeChange}
+                    getPageNumbers={getPageNumbers}
+                    handlePageChange={handlePageChange}
                     refreshNotes={fetchNotes} 
                     addSiteNote={addSiteNote} 
                     updateNote={updateNote}
