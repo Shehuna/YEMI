@@ -37,7 +37,7 @@ const UserManagement = () => {
                         UserName: user.userName,
                         Email: user.email,
                         Status: user.status,
-                        profilePictureBase64: user.profilePictureBase64
+                        profilePicturePath: user.profilePicturePath
                     })
                 }
             } else {
@@ -47,14 +47,14 @@ const UserManagement = () => {
                     UserName: '',
                     Email: '',
                     Password: '',
-                    profilePictureBase64: null
+                    profilePicturePath: null
                 })
             }
         }, [isEditUserOpen, isChangeUserStatusOpen, selectedUser, users]);
 
     const handleInputChange = (e) => {
     const {name, value, files} = e.target;
-    if(name === 'profilePictureBase64'){
+    if(name === 'profilePicturePath'){
       setFormData((prevData) => ({...prevData, [name]: files[0]}))
       }else{
         setFormData((prevData) => ({...prevData, [name]: value}))
@@ -77,7 +77,8 @@ const UserManagement = () => {
       throw new Error('Failed to create user');
     }
     toast.success('User created successfully!');
-    //alert('User created successfully!');
+    setIsAddUserOpen(false)
+    fetchUsers()
     setFormData({
         Role: 'Admin'
     })
@@ -122,6 +123,7 @@ const UserManagement = () => {
       throw new Error('Failed to create user');
     }
     toast.success('User Updated successfully!');
+    setIsEditUserOpen(false)
     fetchUsers()
   } catch (error) {
     toast.error('Failed to update user. Please try again.');
@@ -288,7 +290,7 @@ const UserManagement = () => {
                 <label>Profile Picture:</label>
                 <input
                     type="file"
-                    name="profilePictureBase64"
+                    name="profilePicturePath"
                     onChange={handleInputChange}
                     placeholder="Password"
                     required
@@ -321,13 +323,13 @@ const UserManagement = () => {
                 <div className="form-group" >
                     <div style={{display: 'flex', justifyContent: 'center', alignItems:'center'}}>
                     <img style={{width: '70px', height: '70px', borderRadius: '50%'
-                    }} src={formData.profilePictureBase64 !== null ? `data:image/png;base64,${formData.profilePictureBase64}` : logo} alt="" />
+                    }} src={formData.profilePicturePath !== null ? `${formData.profilePicturePath}` : logo} alt="" />
                     </div>
                     
                     <label>Profile Picture:</label>
                     <input
                     type="file"
-                    name="ProfilePicture"
+                    name="profilePicturePath"
                     onChange={handleInputChange}
                     placeholder="Password"
                     required
