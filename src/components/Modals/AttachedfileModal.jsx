@@ -64,7 +64,7 @@ const AttachedFileModal = ({
       docs = Array.isArray(docs.documents) ? docs.documents : [];
 
       setDocuments(docs.map(doc => {
-        const downloadApiTriggerUrl = `${process.env.REACT_APP_API_BASE_URL}/api/Documents/Download/${doc.id}`;
+        const downloadApiTriggerUrl = `${process.env.REACT_APP_API_BASE_URL}/api/Documents/DownloadDocument/${doc.id}`;
 
         return {
           ...doc,
@@ -182,6 +182,7 @@ const handleDocumentSubmit = async () => {
   };
   
 const handleDownloadDocument = async (documentToDownload) => {
+  console.log(documentToDownload)
   try {
     setError(null); 
     setIsSubmitting(true); 
