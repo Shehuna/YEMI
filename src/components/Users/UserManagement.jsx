@@ -323,7 +323,7 @@ const UserManagement = () => {
                 <div className="form-group" >
                     <div style={{display: 'flex', justifyContent: 'center', alignItems:'center'}}>
                     <img style={{width: '70px', height: '70px', borderRadius: '50%'
-                    }} src={formData.profilePicturePath !== null ? `${formData.profilePicturePath}` : logo} alt="" />
+                    }} src={formData.profilePicturePath} alt="" />
                     </div>
                     
                     <label>Profile Picture:</label>
