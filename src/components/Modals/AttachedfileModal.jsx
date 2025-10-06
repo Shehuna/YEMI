@@ -164,7 +164,7 @@ const handleDocumentSubmit = async () => {
         ...savedDoc,
         fileType: getMimeType(savedDoc.fileName).split('/')[1],
         fileUrl: null,
-        downloadApiTriggerUrl: `${process.env.REACT_APP_API_BASE_URL}/api/Documents/Download/${savedDoc.id}`
+        downloadApiTriggerUrl: `${process.env.REACT_APP_API_BASE_URL}/api/Documents/DownloadDocument/${savedDoc.id}`
       };
 
       // ✅ Add uploaded doc to state
