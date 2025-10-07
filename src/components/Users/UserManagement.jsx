@@ -406,6 +406,17 @@ const UserManagement = () => {
                         />
                         </div>
                     </div>
+                <div className="form-group">
+                 <label>Profile Picture:</label>
+                 <input
+                    type="file"
+                    name="profilePicturePath"
+                    onChange={handleInputChange}
+                    placeholder="Password"
+                    required
+                   />
+                      </div>
+                 </div>
 
                     <div className="settings-action-buttons">
                         <button 
@@ -415,7 +426,7 @@ const UserManagement = () => {
                         Create User
                         </button>
                     </div>
-                    </div>
+                    
                 </Modal>
                 
                 <Modal

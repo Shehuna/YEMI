@@ -105,6 +105,10 @@
   border-radius: 4px;
   cursor: pointer;
 }
+.add-button:hover {
+  background-color: #4caf50; 
+  color: white; 
+}
 
 .edit-button {
   background-color: #2196f3;
@@ -213,6 +217,10 @@
   padding: 8px 16px;
   border-radius: 4px;
   cursor: pointer;
+}
+.submit-button:hover {
+  background-color: #45a049; 
+  color: white;
 }
 
 .submit-button:disabled {

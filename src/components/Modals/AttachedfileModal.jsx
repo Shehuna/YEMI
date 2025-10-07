@@ -64,7 +64,7 @@ const AttachedFileModal = ({
       docs = Array.isArray(docs.documents) ? docs.documents : [];
 
       setDocuments(docs.map(doc => {
-        const downloadApiTriggerUrl = `${process.env.REACT_APP_API_BASE_URL}/api/Documents/Download/${doc.id}`;
+        const downloadApiTriggerUrl = `${process.env.REACT_APP_API_BASE_URL}/api/Documents/DownloadDocument/${doc.id}`;
 
         return {
           ...doc,
@@ -164,7 +164,7 @@ const handleDocumentSubmit = async () => {
         ...savedDoc,
         fileType: getMimeType(savedDoc.fileName).split('/')[1],
         fileUrl: null,
-        downloadApiTriggerUrl: `${process.env.REACT_APP_API_BASE_URL}/api/Documents/Download/${savedDoc.id}`
+        downloadApiTriggerUrl: `${process.env.REACT_APP_API_BASE_URL}/api/Documents/DownloadDocument/${savedDoc.id}`
       };
 
       // ✅ Add uploaded doc to state
@@ -182,6 +182,7 @@ const handleDocumentSubmit = async () => {
   };
   
 const handleDownloadDocument = async (documentToDownload) => {
+  console.log(documentToDownload)
   try {
     setError(null); 
     setIsSubmitting(true); 

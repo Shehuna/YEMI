@@ -687,6 +687,7 @@ const Dashboard = ({
                   className={hierarchy.includes(col) ? 'hierarchy-column' : ''}
                 >
                   {col === 'date' && <i className="far fa-calendar-alt"></i>}
+                  {col === 'workspace' && <i className="fas fa-building"></i>}  
                   {col === 'project' && <i className="fas fa-project-diagram"></i>}
                   {col === 'job' && <i className="fas fa-tasks"></i>}
                   {col === 'note' && <i className="far fa-sticky-note"></i>}
