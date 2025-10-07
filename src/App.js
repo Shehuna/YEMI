@@ -9,6 +9,8 @@ function App() {
   const [notes, setNotes] = useState([]);
   const [userId, setUserId]= useState(0)
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+
   const [hasMore, setHasMore] = useState(true);
  
   const [projects, setProjects] = useState([]); 
@@ -28,6 +30,7 @@ function App() {
         if (userId) {
             fetchInitialData(userId);
         }
+        
     }, [userId]); 
 
   useEffect(() => {
@@ -98,39 +101,17 @@ function App() {
   };
 
   const loadMore = async () => {
-  // Prevent multiple simultaneous calls
-  if (loading || !hasMore) return;
-  
-  setLoading(true);
-  
-  try {
+    if (loading || !hasMore) return;
+    setLoading(true);
     const newData = await fetchNotes(userId);
-
-    // Comprehensive check for valid array
-    if (!newData || !Array.isArray(newData)) {
-      console.warn('fetchNotes returned non-array data:', newData);
+    const safeData = Array.isArray(newData) ? newData : [];
+    if (safeData.length === 0 || safeData.length < pageSize) {
       setHasMore(false);
-      return;
     }
-
-    if (newData.length === 0) {
-      setHasMore(false);
-    } else {
-      setNotes(prev => {
-        // Avoid duplicates (optional)
-        const existingIds = new Set(prev.map(note => note.id));
-        const uniqueNewData = newData.filter(note => !existingIds.has(note.id));
-        return [...prev, ...uniqueNewData];
-      });
-    }
-    
-  } catch (error) {
-    console.error('Error in loadMore:', error);
-    setHasMore(false); // Stop trying on error
-  } finally {
+    setNotes(prev => [...prev, ...safeData]);
+    setPage(prev => prev + 1);
     setLoading(false);
-  }
-};
+    };
 
   // const fetchDocumentCount = async (siteNoteId) => {
   //   if (!siteNoteId) return 0;
@@ -169,7 +150,7 @@ function App() {
 
   const fetchNotes = async (userid) => {
     try {
-      const response = await fetch(`${apiUrl}/GetSiteNotes?pageNumber=1&pageSize=25&userId=${userid}`, {
+      const response = await fetch(`${apiUrl}/GetSiteNotes?pageNumber=${page}&pageSize=${pageSize}&userId=${userid}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json; charset=utf-8",
