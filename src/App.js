@@ -16,23 +16,9 @@ function App() {
   const [files, setFiles] = useState({});
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [documentCounts, setDocumentCounts] = useState({});
-
+  const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/api/SiteNote`;
 
    useEffect(() => {
-        const initializeUser = () => {
-            try {
-                const userStr = localStorage.getItem("user");
-                if (userStr) {
-                    const user = JSON.parse(userStr);
-                    console.log("User from localStorage:", user);
-                    setUserId(user.id);
-                    setIsAuthenticated(true);
-                }
-            } catch (error) {
-                console.error("Error parsing user:", error);
-            }
-        };
-
         initializeUser();
     }, []);
 
@@ -41,6 +27,20 @@ function App() {
             fetchInitialData(userId);
         }
     }, [userId]); 
+
+  const initializeUser = () => {
+            try {
+                const userStr = localStorage.getItem("user");
+                if (userStr) {
+                    const user = JSON.parse(userStr);
+                    console.log("User from localStorage:", user);
+                    setUserId(parseInt(user.id));
+                    setIsAuthenticated(true);
+                }
+            } catch (error) {
+                console.error("Error parsing user:", error);
+            }
+        };
 
   /* useEffect(() => {
     console.log(userId)
@@ -58,8 +58,7 @@ function App() {
   }, [userId]); */
   const handleLogin = (user) => {
     
-    setIsAuthenticated(true);
-    //fetchInitialData(userId);
+   initializeUser()
   };
 
   
@@ -120,7 +119,7 @@ function App() {
 
   const fetchNotes = async (userid) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/SiteNote/GetSiteNotes?pageNumber=1&pageSize=50&userId=${userid}`, {
+      const response = await fetch(`${apiUrl}/GetSiteNotes?pageNumber=1&pageSize=50&userId=${userId}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json; charset=utf-8",
@@ -132,7 +131,7 @@ function App() {
       if (response.ok) {
         console.log()
         const data = JSON.parse(text);
-        
+        console.log(data)
         setNotes(data.siteNotes);
         // fetchAllDocumentCounts(data);
         setLoading(false);  
