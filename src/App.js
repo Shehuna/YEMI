@@ -30,6 +30,19 @@ function App() {
         }
     }, [userId]); 
 
+  useEffect(() => {
+      const handleScroll = () => {
+      if (
+      window.innerHeight + window.scrollY >= document.body.offsetHeight - 100 &&
+      !loading
+      ) {
+      loadMore();
+      }
+      };
+      window.addEventListener("scroll", handleScroll);
+      return () => window.removeEventListener("scroll", handleScroll);
+      }, [loading])
+
   const initializeUser = () => {
             try {
                 const userStr = localStorage.getItem("user");
@@ -85,15 +98,39 @@ function App() {
   };
 
   const loadMore = async () => {
-    if (loading || !hasMore) return;
-    setLoading(true);
-    const res = await fetchInitialData(userId);
-    const newData = await res.json();
-    if (newData.length === 0) setHasMore(false);
-    setNotes(prev => [...prev, ...newData]);
-    setPage(prev => prev + 1);
+  // Prevent multiple simultaneous calls
+  if (loading || !hasMore) return;
+  
+  setLoading(true);
+  
+  try {
+    const newData = await fetchNotes(userId);
+
+    // Comprehensive check for valid array
+    if (!newData || !Array.isArray(newData)) {
+      console.warn('fetchNotes returned non-array data:', newData);
+      setHasMore(false);
+      return;
+    }
+
+    if (newData.length === 0) {
+      setHasMore(false);
+    } else {
+      setNotes(prev => {
+        // Avoid duplicates (optional)
+        const existingIds = new Set(prev.map(note => note.id));
+        const uniqueNewData = newData.filter(note => !existingIds.has(note.id));
+        return [...prev, ...uniqueNewData];
+      });
+    }
+    
+  } catch (error) {
+    console.error('Error in loadMore:', error);
+    setHasMore(false); // Stop trying on error
+  } finally {
     setLoading(false);
-    };
+  }
+};
 
   // const fetchDocumentCount = async (siteNoteId) => {
   //   if (!siteNoteId) return 0;
@@ -132,7 +169,7 @@ function App() {
 
   const fetchNotes = async (userid) => {
     try {
-      const response = await fetch(`${apiUrl}/GetSiteNotes?pageNumber=1&pageSize=50&userId=${userid}`, {
+      const response = await fetch(`${apiUrl}/GetSiteNotes?pageNumber=1&pageSize=25&userId=${userid}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json; charset=utf-8",
