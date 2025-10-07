@@ -8,7 +8,14 @@ import AttachedFileModal from './Modals/AttachedfileModal.jsx';
 import ViewNoteModal from './Modals/ViewNoteModal';
 
 const Dashboard = ({ 
-  notes, 
+  notes,
+  currentPage,
+  pageSize,
+  totalPages, 
+  totalCount, 
+  handlePageSize,
+  handlePageChange,
+  getPageNumbers,
   refreshNotes, 
   addSiteNote, 
   updateNote, 
@@ -18,11 +25,12 @@ const Dashboard = ({
   onUploadDocument, 
   onDeleteDocument, 
   fetchDocuments,
-   onLogout
+  onLogout
 }) => {
-  
+  //const [notes, setNotes] = useState([]);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [activeSubModal, setActiveSubModal] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [showNewModal, setShowNewModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedNote, setSelectedNote] = useState(null);
@@ -42,10 +50,43 @@ const Dashboard = ({
   const [showViewModal, setShowViewModal] = useState(false); 
   const [viewNote, setViewNote] = useState(null);
   const [currentTheme, setCurrentTheme] = useState('gray');
+
   const handleThemeChange = (theme) => {
     setCurrentTheme(theme);
   };
+
+ /*  const fetchNotes = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/SiteNote/GetSiteNotes?pageNumber=${currentPage}&pageSize=${pageSize}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+        }
+      });
   
+      const text = await response.text();
+  
+      if (response.ok) {
+        console.log()
+        const data = JSON.parse(text);
+        console.log(data.totalCount)
+        console.log(data.totalPages)
+        setNotes(data.siteNotes);
+        setCurrentPage(data.pageNumber)
+        setPageSize(data.pageSize)
+        setTotalCount(data.totalCount)
+        setTotalPages(data.totalPages)
+        // fetchAllDocumentCounts(data);
+        setLoading(false);  
+      } else {
+        console.error(`Failed to fetch: ${response.status}`);
+      }
+  
+    } catch (error) {
+      console.error("Error fetching notes:", error);
+    }
+  };
+   */
   const styles = {
     searchBox: {
       display: 'flex',
@@ -84,6 +125,8 @@ const Dashboard = ({
     },
   };
 
+  
+
   const handleRowClick = useCallback((note) => {
     setSelectedRow(note.id);
     setViewNote(note);
@@ -91,6 +134,48 @@ const Dashboard = ({
     
     
   }, []);
+
+  /* const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+      fetchData(newPage);
+    }
+  }; */
+
+  // Page size change handler
+  /* const handlePageSizeChange = (newSize) => {
+    setPageSize(newSize);
+    setCurrentPage(1); // Reset to first page when changing size
+    fetchData(1, newSize);
+  }; */
+
+    // Generate page numbers for pagination controls
+  /* const getPageNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+    
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+    
+    // Adjust if we're at the end
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+    
+    return pages;
+  }; */
+
+  /* if (loading && data.length === 0) {
+    return <div className="loading">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="error">Error: {error}</div>;
+  } */
 
   const loadDocumentsForView = async (noteId) => {
     try {
@@ -674,7 +759,17 @@ const Dashboard = ({
             </button>
           )}
         </div>
-  
+      <div className="page-size-selector">
+        <label>Items per page: </label>
+        <select 
+          value={pageSize} 
+          onChange={(e) => handlePageSize(Number(e.target.value))}
+        >
+          <option value={10}>10</option>
+          <option value={20}>20</option>
+          <option value={50}>50</option>
+        </select>
+      </div>
   <div className="responsive-table-container">
         <table>
           <thead>
@@ -779,6 +874,57 @@ const Dashboard = ({
           </tbody>
         </table>
         </div>
+        <div className="pagination-controls">
+        <div className="pagination-info">
+          Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, totalCount)} of {totalCount} items
+        </div>
+        
+        <div className="pagination-buttons">
+          {/* First Page */}
+          <button
+            onClick={() => handlePageChange(1)}
+            disabled={currentPage === 1 }
+          >
+            First
+          </button>
+
+          {/* Previous Page */}
+          <button
+           onClick={() => handlePageChange(currentPage - 1)}
+           disabled={currentPage === 1 }
+          >
+            Previous
+          </button>
+
+          {/* Page Numbers */}
+          {getPageNumbers().map(page => (
+            <button
+              key={page}
+              onClick={() => handlePageChange(page)}
+              //disabled={loading}
+              className={currentPage === page ? 'active' : ''}
+            >
+              {page}
+            </button>
+          ))} 
+
+          {/* Next Page */}
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
+
+          {/* Last Page */}
+          <button
+            onClick={() => handlePageChange(totalPages)}
+            disabled={currentPage === totalPages}
+          >
+            Last
+          </button>
+        </div>
+      </div>
       </div>
 
       {showSettingsModal && (

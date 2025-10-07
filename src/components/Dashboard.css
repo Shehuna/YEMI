@@ -64,3 +64,58 @@
 .responsive-table-container td:last-child {
   width: 70px;
 }
+
+.paginated-container {
+  position: relative;
+}
+
+.pagination-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  padding: 10px 0;
+}
+
+.pagination-buttons {
+  display: flex;
+  gap: 5px;
+}
+
+.pagination-buttons button {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  background: white;
+  cursor: pointer;
+}
+
+.pagination-buttons button:hover:not(:disabled) {
+  background: #f0f0f0;
+}
+
+.pagination-buttons button.active {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.pagination-buttons button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-size-selector {
+  margin-bottom: 20px;
+}
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
