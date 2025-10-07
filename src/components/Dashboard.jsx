@@ -9,13 +9,6 @@ import ViewNoteModal from './Modals/ViewNoteModal';
 
 const Dashboard = ({ 
   notes,
-  currentPage,
-  pageSize,
-  totalPages, 
-  totalCount, 
-  handlePageSize,
-  handlePageChange,
-  getPageNumbers,
   refreshNotes, 
   addSiteNote, 
   updateNote, 
@@ -759,17 +752,7 @@ const Dashboard = ({
             </button>
           )}
         </div>
-      <div className="page-size-selector">
-        <label>Items per page: </label>
-        <select 
-          value={pageSize} 
-          onChange={(e) => handlePageSize(Number(e.target.value))}
-        >
-          <option value={10}>10</option>
-          <option value={20}>20</option>
-          <option value={50}>50</option>
-        </select>
-      </div>
+      
   <div className="responsive-table-container">
         <table>
           <thead>
@@ -874,57 +857,7 @@ const Dashboard = ({
           </tbody>
         </table>
         </div>
-        <div className="pagination-controls">
-        <div className="pagination-info">
-          Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, totalCount)} of {totalCount} items
-        </div>
-        
-        <div className="pagination-buttons">
-          {/* First Page */}
-          <button
-            onClick={() => handlePageChange(1)}
-            disabled={currentPage === 1 }
-          >
-            First
-          </button>
-
-          {/* Previous Page */}
-          <button
-           onClick={() => handlePageChange(currentPage - 1)}
-           disabled={currentPage === 1 }
-          >
-            Previous
-          </button>
-
-          {/* Page Numbers */}
-          {getPageNumbers().map(page => (
-            <button
-              key={page}
-              onClick={() => handlePageChange(page)}
-              //disabled={loading}
-              className={currentPage === page ? 'active' : ''}
-            >
-              {page}
-            </button>
-          ))} 
-
-          {/* Next Page */}
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-          >
-            Next
-          </button>
-
-          {/* Last Page */}
-          <button
-            onClick={() => handlePageChange(totalPages)}
-            disabled={currentPage === totalPages}
-          >
-            Last
-          </button>
-        </div>
-      </div>
+       
       </div>
 
       {showSettingsModal && (

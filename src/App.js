@@ -7,10 +7,8 @@ import "./App.css";
 
 function App() {
   const [notes, setNotes] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [totalPages, setTotalPages] = useState(0);
-  const [totalCount, setTotalCount] = useState(0);
+  const [userId, setUserId]= useState(0)
+ 
   const [projects, setProjects] = useState([]); 
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,20 +17,49 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [documentCounts, setDocumentCounts] = useState({});
 
+
+   useEffect(() => {
+        const initializeUser = () => {
+            try {
+                const userStr = localStorage.getItem("user");
+                if (userStr) {
+                    const user = JSON.parse(userStr);
+                    console.log("User from localStorage:", user);
+                    setUserId(user.id);
+                    setIsAuthenticated(true);
+                }
+            } catch (error) {
+                console.error("Error parsing user:", error);
+            }
+        };
+
+        initializeUser();
+    }, []);
+
   useEffect(() => {
-    fetchInitialData();
+        if (userId) {
+            fetchInitialData(userId);
+        }
+    }, [userId]); 
+
+  /* useEffect(() => {
+    console.log(userId)
+    //fetchInitialData();
     //fetchNotes();
-     const user = localStorage.getItem('user');
+    const user = localStorage.getItem('user');
     if (user) {
+      console.log(user)
+      setUserId(user.id)
       setIsAuthenticated(true);
       fetchInitialData();
     } else {
       setLoading(false);
-    }
-  }, []);
+    }  
+  }, [userId]); */
   const handleLogin = (user) => {
+    
     setIsAuthenticated(true);
-    fetchInitialData();
+    //fetchInitialData(userId);
   };
 
   
@@ -43,11 +70,11 @@ function App() {
   };
  
 
-  const fetchInitialData = async () => {
+  const fetchInitialData = async (id) => {
     setLoading(true);
     setError(null);
     try {
-      await Promise.all([fetchNotes(), fetchProjectsAndJobs()]);
+      await Promise.all([fetchNotes(id), fetchProjectsAndJobs()]);
     } catch (err) {
       setError(err.message);
       console.error("Initial data loading error:", err);
@@ -91,9 +118,9 @@ function App() {
     setDocumentCounts(counts);
   };
 
-  const fetchNotes = async (page = 1, size = pageSize) => {
+  const fetchNotes = async (userid) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/SiteNote/GetSiteNotes?pageNumber=${page}&pageSize=${size}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/SiteNote/GetSiteNotes?pageNumber=1&pageSize=50&userId=${userid}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json; charset=utf-8",
@@ -105,13 +132,8 @@ function App() {
       if (response.ok) {
         console.log()
         const data = JSON.parse(text);
-        console.log(data.totalCount)
-        console.log(data.totalPages)
+        
         setNotes(data.siteNotes);
-        setCurrentPage(data.pageNumber)
-        setPageSize(data.pageSize)
-        setTotalCount(data.totalCount)
-        setTotalPages(data.totalPages)
         // fetchAllDocumentCounts(data);
         setLoading(false);  
       } else {
@@ -123,40 +145,6 @@ function App() {
     }
   };
 
-  // Page change handler
-  const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= totalPages) {
-      setCurrentPage(newPage);
-      fetchNotes(newPage);
-    }
-  };
-
-  // Page size change handler
-  const handlePageSizeChange = (newSize) => {
-    setPageSize(newSize);
-    setCurrentPage(1); // Reset to first page when changing size
-    fetchNotes(1, newSize);
-  };
-
-    // Generate page numbers for pagination controls
-  const getPageNumbers = () => {
-    const pages = [];
-    const maxVisiblePages = 5;
-    
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-    
-    // Adjust if we're at the end
-    if (endPage - startPage + 1 < maxVisiblePages) {
-      startPage = Math.max(1, endPage - maxVisiblePages + 1);
-    }
-    
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(i);
-    }
-    
-    return pages;
-  };
 
   const fetchDocumentsByReference = async (noteId) => {
     try {
@@ -467,13 +455,7 @@ function App() {
                 ) : (
                   <Dashboard 
                     notes={notes} 
-                    currentPage={currentPage}
-                    pageSize={pageSize}
-                    totalPages={totalPages}
-                    totalCount={totalCount}
-                    handlePageSize={handlePageSizeChange}
-                    getPageNumbers={getPageNumbers}
-                    handlePageChange={handlePageChange}
+                   
                     refreshNotes={fetchNotes} 
                     addSiteNote={addSiteNote} 
                     updateNote={updateNote}
