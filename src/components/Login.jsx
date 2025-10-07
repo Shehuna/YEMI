@@ -37,11 +37,11 @@ const Login = ({ onLogin }) => {
           throw new Error('Login failed: Invalid data received.');
         }
       } else {
-        throw new Error(data.message || 'Login failed. Please check your credentials.');
+        throw new Error(data.message || 'Login failed. Please check your username/password.');
       }
     } catch (err) {
       console.error('Login error:', err);
-      setError(err.message || 'An unexpected error occurred. Please try again later.');
+      setError('Login failed. Please check your username/password.');
     } finally {
       setIsLoading(false);
     }
