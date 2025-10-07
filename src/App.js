@@ -57,8 +57,8 @@ function App() {
     }  
   }, [userId]); */
   const handleLogin = (user) => {
-    
-   initializeUser()
+    initializeUser()
+    //fetchInitialData(userId);
   };
 
   
@@ -119,7 +119,7 @@ function App() {
 
   const fetchNotes = async (userid) => {
     try {
-      const response = await fetch(`${apiUrl}/GetSiteNotes?pageNumber=1&pageSize=50&userId=${userId}`, {
+      const response = await fetch(`${apiUrl}/GetSiteNotes?pageNumber=1&pageSize=50&userId=${userid}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json; charset=utf-8",
