@@ -48,6 +48,7 @@ const Dashboard = ({
     setCurrentTheme(theme);
   };
 
+
  /*  const fetchNotes = async () => {
     try {
       const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/SiteNote/GetSiteNotes?pageNumber=${currentPage}&pageSize=${pageSize}`, {
@@ -547,14 +548,28 @@ const Dashboard = ({
     setShowEditModal(true);
   };
 
-  const handleDelete = async (noteId) => {
-    if (window.confirm('Are you sure you want to delete this note?')) {
-      try { 
-        await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/SiteNote/DeleteSiteNote/${noteId}`, { method: 'DELETE' });
-        refreshNotes();
-      } catch (error) {
-        console.error('Error deleting note:', error);
-      }
+  const handleDelete = async (note) => {
+        const creationDate = note.timeStamp;
+            //|| note.dateCreated || note.createdDate || note.date
+            if (creationDate) {
+              const createdAt = new Date(creationDate);
+              const now = new Date();
+              const hoursDiff = (now - createdAt) / (1000 * 60 * 60); 
+              if(hoursDiff > 24){
+                 alert('Cannot delete this note it is older than 24 hours')
+              }
+             else{
+              if (window.confirm('Are you sure you want to delete this note?')) {
+              try { 
+                    await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/SiteNote/DeleteSiteNote/${note.id}`, { method: 'DELETE' });
+                    refreshNotes();
+                  } catch (error) {
+                    console.error('Error deleting note:', error);
+                }
+             }
+            } 
+       
+      
     }
   };
   const getUniqueValues = (column, currentNotes) => {
@@ -879,7 +894,7 @@ const Dashboard = ({
                   title="Delete" 
                   onClick={(e) => { 
                   e.stopPropagation(); 
-                  handleDelete(note.id);
+                  handleDelete(note);
                   }}>
                   <i className="fas fa-trash"></i>
                  </a>
