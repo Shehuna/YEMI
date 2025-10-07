@@ -28,15 +28,16 @@ const WorkspaceManagement = () => {
     const [isEditWorkspaceOpen, setIsEditWorkspaceOpen] = useState(false);
     const [selectedWorkspace, setSelectedWorkspace] = useState('');
     const [workspaces, setWorkspaces] = useState([]);
+    
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
 
     const API_URL = process.env.REACT_APP_API_BASE_URL
 
       useEffect(() => {
-            fetchWorkspaces();
             const user = JSON.parse(localStorage.getItem('user'));
             setOwnerUserID(user.id)
+            fetchWorkspaces(user.id);
         }, []);
 
         useEffect(() => {
@@ -57,10 +58,10 @@ const WorkspaceManagement = () => {
             }, [isEditWorkspaceOpen, selectedWorkspace, workspaces]);
     
     
-       const fetchWorkspaces = async () => {
+       const fetchWorkspaces = async (userid) => {
         setLoading(true);
         try {
-          const response = await fetch(`${API_URL}/api/Workspace/GetWorkspace`,{
+          const response = await fetch(`${API_URL}/api/Workspace/GetWorkspacesByUserId/${userid}`,{
             method: 'GET'
           });
           
@@ -140,8 +141,6 @@ const WorkspaceManagement = () => {
             });
 
         if (!response.ok) throw new Error('Failed to add workspace');
-        
-        toast.success('Workspace Created Successfully')
         fetchWorkspaces(); 
         setWorkspaceName('')
         setOwnerType(1)
@@ -151,11 +150,38 @@ const WorkspaceManagement = () => {
         setCountry('')
         setStatus(2)
         setIsAddWorkspaceOpen(false);
+        const data = await response.json()
+        const workspaceID =  data.workspace.id
+        console.log(workspaceID)
+        await addUserToWorkSpace(ownerUserID, workspaceID)
     } catch (err) {
         setError(err.message);
         console.error('Error adding workspace:', err);
     }
 };
+
+  const addUserToWorkSpace = async(userid, workspaceId) => {
+    try {
+        const response = await fetch(`${API_URL}/api/UserWorkspace/AddUserWorkspace`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                userID: userid,
+                workspaceID: workspaceId,
+                role: 1,
+                status: 1
+            }),
+        
+            });
+
+        if (!response.ok) throw new Error('Failed to add workspace');
+        toast.success('Workspace Created Successfully')
+        fetchWorkspaces(userid);
+        } catch (err) {
+        setError(err.message);
+        console.error('Error adding workspace:', err);
+    }
+  }
   return (
      
     <div className="settings-content">

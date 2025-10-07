@@ -8,6 +8,8 @@ import "./App.css";
 function App() {
   const [notes, setNotes] = useState([]);
   const [userId, setUserId]= useState(0)
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
  
   const [projects, setProjects] = useState([]); 
   const [jobs, setJobs] = useState([]);
@@ -81,6 +83,17 @@ function App() {
       setLoading(false);
     }
   };
+
+  const loadMore = async () => {
+    if (loading || !hasMore) return;
+    setLoading(true);
+    const res = await fetchInitialData(userId);
+    const newData = await res.json();
+    if (newData.length === 0) setHasMore(false);
+    setNotes(prev => [...prev, ...newData]);
+    setPage(prev => prev + 1);
+    setLoading(false);
+    };
 
   // const fetchDocumentCount = async (siteNoteId) => {
   //   if (!siteNoteId) return 0;
@@ -335,6 +348,7 @@ function App() {
 
       const result = await response.json();
       console.log('Update successful:', result);
+      fetchNotes(userId)
       return result;
       
     } catch (error) {
@@ -368,7 +382,7 @@ function App() {
       }
 
       const responseData = await response.json();
-      await fetchNotes(); 
+      await fetchNotes(userId); 
       return responseData;
     } catch (error) {
       console.error("API Error:", error);

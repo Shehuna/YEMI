@@ -118,7 +118,38 @@ const Dashboard = ({
     },
   };
 
-  
+  const useInfiniteScroll = (fetchData, initialPage = 1) => {
+  const [data, setData] = useState([]);
+  const [page, setPage] = useState(initialPage);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [error, setError] = useState(null);
+
+  const loadMore = useCallback(async () => {
+    if (loading || !hasMore) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetchData(page);
+      setData(prev => [...prev, ...response.data]);
+      setHasMore(response.hasMore);
+      setPage(prev => prev + 1);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [page, loading, hasMore, fetchData]);
+
+  // Initial load
+  useEffect(() => {
+    loadMore();
+  }, []);
+
+  return { data, loading, hasMore, error, loadMore };
+}
 
   const handleRowClick = useCallback((note) => {
     setSelectedRow(note.id);
@@ -625,9 +656,10 @@ const Dashboard = ({
               }}></span>
             </span>
           </h1>
-  
+        
           <button 
             onClick={() => setShowSettingsModal(true)}
+            
             style={{
               background: 'rgba(52, 152, 219, 0.1)',
               border: '1px solid rgba(52, 152, 219, 0.2)',
