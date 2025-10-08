@@ -116,6 +116,7 @@ const WorkspaceManagement = () => {
         setSelectedWorkspace('');
         setIsEditWorkspaceOpen(false);
         toast.success('Worksapce is updated successfully')
+        fetchWorkspaces(ownerUserID);
     } catch (err) {
         setError(err.message);
         toast.error('Error updating workspace')
