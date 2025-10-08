@@ -42,7 +42,7 @@ const SettingsModal = ({ isOpen, onClose, onLogout, role }) => {
         if (isOpen) {
             fetchInitialData();
         }
-    }, [isOpen]);
+    }, [isOpen, role]);
     
     const [selectedWorkspace, setSelectedWorkspace] = useState('');
     const [workspaces, setWorkspaces] = useState([]);
