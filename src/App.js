@@ -232,7 +232,7 @@ function App() {
 
         const result = await response.json(); 
         console.log('Document uploaded successfully:', result.message);
-
+        fetchNotes(userId)
         // if (siteNoteId) {
         //   const newCount = await fetchDocumentCount(siteNoteId);
         //   setDocumentCounts(prev => ({...prev, [siteNoteId]: newCount}));
