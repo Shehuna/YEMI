@@ -9,7 +9,7 @@ import WorkspaceManagement from '../Workspaces/WorkspaceManagement';
 import ProjectManagement from '../Projects/ProjectManagement';
 import JobManagment from '../Jobs/JobManagment';
 
-const SettingsModal = ({ isOpen, onClose, onLogout }) => { 
+const SettingsModal = ({ isOpen, onClose, onLogout, role }) => { 
     const [activeTab, setActiveTab] = useState(null);
     const [projects, setProjects] = useState([]);
     const [jobs, setJobs] = useState([]);
@@ -302,7 +302,9 @@ useEffect(() => {
     );
 
     const renderMainMenu = () => (
+        
         <div className="settings-options-container">
+            
             {[
                 {
                     id: 'projectManagement',
@@ -335,12 +337,15 @@ useEffect(() => {
                     text: 'Workspace Settings'
                 }
             ].map((option) => (
+                
                 <button
                     key={option.id}
                     className="settings-option"
                     onClick={() => setActiveTab(option.id)}
+                    disabled={role === 2 && option.id !== 'workspaceSettings'}
                     aria-label={`Open ${option.text} settings`}
                 >
+                    
                     <div className="option-icon">
                         <i className={`fas ${option.icon}`} />
                     </div>
@@ -383,7 +388,7 @@ useEffect(() => {
             case 'jobStatus':
                 return renderJobStatusUpdate();
             case 'workspaceSettings':
-                return <WorkspaceManagement />;
+                return <WorkspaceManagement role={role}/>;
             default:
                 return <div>Unknown settings option</div>;
         }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Login from './components/Login';
 import Dashboard from "./components/Dashboard";
@@ -10,8 +10,11 @@ function App() {
   const [userId, setUserId]= useState(0)
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
+  const [userRole, setUserRole] = useState('')
+  const [isInWorkspace, setIsInWorkspace]= useState(false)
 
   const [hasMore, setHasMore] = useState(true);
+  const loadingRef = useRef(false);
  
   const [projects, setProjects] = useState([]); 
   const [jobs, setJobs] = useState([]);
@@ -20,18 +23,135 @@ function App() {
   const [files, setFiles] = useState({});
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [documentCounts, setDocumentCounts] = useState({});
-  const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/api/SiteNote`;
+  const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/api`;
 
    useEffect(() => {
         initializeUser();
     }, []);
 
+  const fetchNotes = useCallback(async (userid) => {
+    if (loadingRef.current) return;
+    
+    loadingRef.current = true;
+    setLoading(true);
+    try {
+      const response = await fetch(`${apiUrl}/SiteNote/GetSiteNotes?pageNumber=${page}&pageSize=${pageSize}&userId=${userid}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+        }
+      });
+  
+      const text = await response.text();
+  
+      if (response.ok) {
+        
+        const data = JSON.parse(text);
+        if (data.siteNotes.length === 0) {
+        setHasMore(false);
+        return;
+      }
+
+      setNotes(prev => {
+        const existingIds = new Set(prev.map(note => note.id));
+        const newNotes = data.siteNotes.filter(note => !existingIds.has(note.id));
+        return [...prev, ...newNotes];
+      });
+      
+      //setNotes(prev => [...prev, ...data.siteNotes]);
+        //console.log(data)
+        //setNotes(data.siteNotes);
+        // fetchAllDocumentCounts(data);
+        setLoading(false);  
+      } else {
+        console.error(`Failed to fetch: ${response.status}`);
+      }
+  
+    } catch (error) {
+      console.error("Error fetching notes:", error);
+    }
+    finally {
+      setLoading(false);
+      loadingRef.current = false;
+    }
+  })
+
+  const fetchUserWorkspace = async (userid) => {
+    try {
+      const response = await fetch(`${apiUrl}/Workspace/GetWorkspacesByUserId/${userid}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+        }
+      });
+  
+      if (response.ok) {
+        setIsInWorkspace(true)
+        getUserWorkspaceMapping(userid)
+        setLoading(false);  
+        return;
+      }
+    } catch (error) {
+      console.error("Error fetching notes:", error);
+    }
+    finally {
+      setLoading(false);
+      loadingRef.current = false;
+    }
+  }
+
+  const getUserWorkspaceMapping = async (userid) => {
+    try {
+      const response = await fetch(`${apiUrl}/UserWorkspace/GetUserWorkspaceById/${userid}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+        }
+      });
+  
+      if (response.ok) {
+        const result = await response.json()
+        setUserRole(result.userWorkspace.role)
+        setLoading(false);  
+        return;
+      }
+    } catch (error) {
+      console.error("Error fetching notes:", error);
+    }
+    finally {
+      setLoading(false);
+      loadingRef.current = false;
+    }
+  }
+
+  const handleScroll = useCallback(() => {
+    if (loadingRef.current || !hasMore) return;
+    
+    const scrollTop = document.documentElement.scrollTop;
+    const scrollHeight = document.documentElement.scrollHeight;
+    const clientHeight = document.documentElement.clientHeight;
+    
+    // Load more when 100px from bottom
+    if (scrollTop + clientHeight >= scrollHeight - 100) {
+      setPage(prev => prev + 1);
+    }
+  }, [hasMore]);
+
+ /*  useEffect(() => {
+    fetchData(page);
+  }, [page, fetchData]); */
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
+
   useEffect(() => {
         if (userId) {
             fetchInitialData(userId);
         }
-        
     }, [userId]); 
+
 
   useEffect(() => {
       const handleScroll = () => {
@@ -84,6 +204,7 @@ function App() {
     localStorage.removeItem('user');
     localStorage.removeItem('userToken'); 
     setIsAuthenticated(false);
+    setUserRole('')
   };
  
 
@@ -91,7 +212,7 @@ function App() {
     setLoading(true);
     setError(null);
     try {
-      await Promise.all([fetchNotes(id), fetchProjectsAndJobs()]);
+      await Promise.all([fetchNotes(id), fetchProjectsAndJobs(), fetchUserWorkspace(id)]);
     } catch (err) {
       setError(err.message);
       console.error("Initial data loading error:", err);
@@ -148,34 +269,7 @@ function App() {
     setDocumentCounts(counts);
   };
 
-  const fetchNotes = async (userid) => {
-    try {
-      const response = await fetch(`${apiUrl}/GetSiteNotes?pageNumber=${page}&pageSize=${pageSize}&userId=${userid}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-        }
-      });
   
-      const text = await response.text();
-  
-      if (response.ok) {
-        console.log()
-        const data = JSON.parse(text);
-        console.log(data)
-        setNotes(data.siteNotes);
-        // fetchAllDocumentCounts(data);
-        setLoading(false);  
-      } else {
-        console.error(`Failed to fetch: ${response.status}`);
-      }
-  
-    } catch (error) {
-      console.error("Error fetching notes:", error);
-    }
-  };
-
-
   const fetchDocumentsByReference = async (noteId) => {
     try {
       const response = await fetch(
@@ -486,7 +580,7 @@ function App() {
                 ) : (
                   <Dashboard 
                     notes={notes} 
-                   
+                    userRole={userRole}
                     refreshNotes={fetchNotes} 
                     addSiteNote={addSiteNote} 
                     updateNote={updateNote}

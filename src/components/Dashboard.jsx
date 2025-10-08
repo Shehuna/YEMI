@@ -9,6 +9,7 @@ import ViewNoteModal from './Modals/ViewNoteModal';
 
 const Dashboard = ({ 
   notes,
+  userRole,
   refreshNotes, 
   addSiteNote, 
   updateNote, 
@@ -674,7 +675,6 @@ const Dashboard = ({
         
           <button 
             onClick={() => setShowSettingsModal(true)}
-            
             style={{
               background: 'rgba(52, 152, 219, 0.1)',
               border: '1px solid rgba(52, 152, 219, 0.2)',
@@ -912,6 +912,7 @@ const Dashboard = ({
           isOpen={showSettingsModal}
           onClose={() => setShowSettingsModal(false)} 
           onLogout={onLogout}
+          role={userRole}
         />
       )}
 
