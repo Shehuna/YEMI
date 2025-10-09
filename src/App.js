@@ -79,8 +79,35 @@ function App() {
       loadingRef.current = false;
     }
   })
-
- 
+  
+  const fetchWorkspaceUserMapping = async () => {
+    try {
+      const response = await fetch(`${apiUrl}/UserWorkspace/GetUserWorkspaces`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+        }
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        //setWorkspaces(data.workspaces || []);
+        setIsInWorkspace(true)
+        setUserDefaultWork(data.workspace.name)
+       // setWorkspaces(data.workspaces)
+        getUserWorkspaceMapping(userId)
+        setLoading(false);  
+        return;
+      }
+    } catch (error) {
+      console.error("Error fetching notes:", error);
+    }
+    finally {
+      setLoading(false);
+      loadingRef.current = false;
+    }
+  }
+  
 
   const getUser = async (userid) => {
     try {
@@ -245,6 +272,7 @@ function App() {
     setUserRole('')
     setNotes([])
     setUserId('')
+    setUserDefaultWork('')
   };
  
 
