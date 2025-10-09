@@ -342,7 +342,7 @@ useEffect(() => {
                     key={option.id}
                     className="settings-option"
                     onClick={() => setActiveTab(option.id)}
-                    disabled={role === 2 && option.id !== 'workspaceSettings'}
+                    disabled={role === '' && option.id !== 'workspaceSettings'}
                     aria-label={`Open ${option.text} settings`}
                 >
                     
@@ -388,7 +388,7 @@ useEffect(() => {
             case 'jobStatus':
                 return renderJobStatusUpdate();
             case 'workspaceSettings':
-                return <WorkspaceManagement role={role}/>;
+                return <WorkspaceManagement />;
             default:
                 return <div>Unknown settings option</div>;
         }

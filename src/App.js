@@ -10,12 +10,11 @@ function App() {
   const [userId, setUserId]= useState(0)
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
-  const [userRole, setUserRole] = useState('')
   const [defaultWorkspace, setDefaultWorkspace] = useState('')
   const [userDefaultWork, setUserDefaultWork] = useState('')
   const [isInWorkspace, setIsInWorkspace]= useState(false)
   const [userWorkspaceMaps, setUserWorkspaceMaps] = useState([])
-  const [userWorkspaces, setUserWorkspaces] = useState([])
+  
 
   const [hasMore, setHasMore] = useState(true);
   const loadingRef = useRef(false);
@@ -82,30 +81,7 @@ function App() {
     }
   })
   
-  const fetchWorkspaceUserMapping = async () => {
-    try {
-      const response = await fetch(`${apiUrl}/UserWorkspace/GetUserWorkspaces`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-        }
-      });
   
-      if (response.ok) {
-        const data = await response.json();
-        //setWorkspaces(data.workspaces || []);
-        setUserWorkspaces(data.userWorkspaces || []) 
-        //console.log(userWorkspaces)
-        return;
-      }
-    } catch (error) {
-      console.error("Error fetching notes:", error);
-    }
-    finally {
-      setLoading(false);
-      loadingRef.current = false;
-    }
-  }
   
 
   const getUser = async (userid) => {
@@ -161,7 +137,7 @@ function App() {
       loadingRef.current = false;
     }
   }
-  const getUserWorkspaceMapping = async (userid) => {
+  /* const getUserWorkspaceMapping = async (userid) => {
     try {
       const response = await fetch(`${apiUrl}/UserWorkspace/GetUserWorkspaceById/${userid}`, {
         method: "GET",
@@ -183,7 +159,7 @@ function App() {
       setLoading(false);
       loadingRef.current = false;
     }
-  }
+  } */
 
   const handleScroll = useCallback(() => {
     if (loadingRef.current || !hasMore) return;
@@ -268,7 +244,6 @@ function App() {
     localStorage.removeItem('user');
     localStorage.removeItem('userToken'); 
     setIsAuthenticated(false);
-    setUserRole('')
     setNotes([])
     setUserId('')
     setUserDefaultWork('')
@@ -279,7 +254,7 @@ function App() {
     setLoading(true);
     setError(null);
     try {
-      await Promise.all([fetchNotes(), fetchProjectsAndJobs(), fetchWorkspaceUserMapping()]);
+      await Promise.all([fetchNotes(), fetchProjectsAndJobs()]);
     } catch (err) {
       setError(err.message);
       console.error("Initial data loading error:", err);
@@ -647,7 +622,7 @@ function App() {
                 ) : (
                   <Dashboard 
                     notes={notes} 
-                    userRole={userRole}
+                    userid={userId}
                     workspaces={workspaces}
                     defaultUserWorkspaceID={defaultWorkspace}
                     defaultUserWorkspaceName={userDefaultWork}

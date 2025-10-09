@@ -9,7 +9,7 @@ import ViewNoteModal from './Modals/ViewNoteModal';
 
 const Dashboard = ({ 
   notes,
-  userRole,
+  userid,
   refreshNotes, 
   addSiteNote, 
   updateNote, 
@@ -51,12 +51,16 @@ const Dashboard = ({
   const [currentTheme, setCurrentTheme] = useState('gray');
   const [defaultWorkspace, setDefaultWorkspace] = useState(null)
   const [isDropDownOpen, setIsDropDownOpen] = useState(false)
-    
+  const [userWorkspaces, setUserWorkspaces] = useState([])
+  
+
+  const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/api`;
+  console.log(userid)
 
   const handleThemeChange = (theme) => {
     setCurrentTheme(theme);
   };
-  console.log(defaultUserWorkspaceID)
+  
 
  /*  const fetchNotes = async () => {
     try {
@@ -238,6 +242,7 @@ const Dashboard = ({
   }; */
 
   useEffect(() => {
+    fetchWorkspaceUserMapping()
     // const fetchAllDocumentCounts = async () => {
     //   for (const note of notes) {
     //     if (!documentCounts.hasOwnProperty(note.id) && !loadingCounts[note.id]) {
@@ -365,6 +370,68 @@ const Dashboard = ({
       });
     };
   }, [noteDocuments]);
+
+  const fetchWorkspaceUserMapping = async () => {
+    try {
+      const response = await fetch(`${apiUrl}/UserWorkspace/GetUserWorkspaces`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+        }
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        //console.log(data.userWorkspaces)
+        fetchWorkspaceByUserId(data.userWorkspaces)
+        //setWorkspaces(data.workspaces || []);
+        //setUserWorkspaces(data.userWorkspaces || []) 
+        /* for (let i = 0; i < data.userWorkspaces.length; i++) {
+            if(data.userWorkspaces[i].userID === userid){
+              console.log(data.userWorkspaces[i].workspaceID)
+            }
+          } */
+        return
+      }
+    } catch (error) {
+      console.error("Error fetching notes:", error);
+    }
+    finally {
+      setLoading(false);
+    }
+  }
+
+  const fetchWorkspaceByUserId = async (workspaces) => {
+    console.log(workspaces)
+    for (let i = 0; i < workspaces.length; i++) {
+            if(workspaces[i].userID === userid){
+              fetchWorkspaceByid(workspaces[i].userID)
+              console.log(workspaces[i].workspaceID)
+        }
+    } 
+    
+  }
+
+  const fetchWorkspaceByid = async (useId) => {
+    try {
+      const response = await fetch(`${apiUrl}/Workspace/GetWorkspacesByUserId/${useId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+        }
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        console.log()
+        setUserWorkspaces(data.workspaces);
+        
+        return;
+      }
+    } catch (error) {
+      console.error("Error fetching notes:", error);
+    }
+  }
 
   const handleAddFromRow = (note) => {
   const today = new Date();
@@ -658,16 +725,16 @@ const Dashboard = ({
           </h1>
           
           <div className="dropdown-container">
-                <label>{defaultUserWorkspaceName}:</label>
+                <label>{defaultUserWorkspaceName ? defaultUserWorkspaceName : 'Default Workspace'}:</label>
                 <select className="dropdown-items"
                     /* value={selectedWorkspace}
                     onChange={(e) => setSelectedWorkspace(e.target.value)}
                     disabled={workspaces.length === 0} */
                 >
-                 
-                  {workspaces.map((workspace)=>(
-                                <option key={workspace.id} value={workspace.id}>{workspace.name}</option>
-                            ))}
+                  <option value="">Select</option>
+                  {userWorkspaces.map((workspace, index)=>(
+                        <option key={`${workspace.id}-${index}`} value={workspace.id}>{workspace.name}</option>
+                    ))}
                 </select>
             </div>
           <button 
@@ -909,7 +976,6 @@ const Dashboard = ({
           isOpen={showSettingsModal}
           onClose={() => setShowSettingsModal(false)} 
           onLogout={onLogout}
-          role={userRole}
           defWorkID={defaultUserWorkspaceID}
         />
       )}
