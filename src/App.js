@@ -11,6 +11,8 @@ function App() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [userRole, setUserRole] = useState('')
+  const [defaultWorkspace, setDefaultWorkspace] = useState('')
+  const [userDefaultWork, setUserDefaultWork] = useState('')
   const [isInWorkspace, setIsInWorkspace]= useState(false)
 
   const [hasMore, setHasMore] = useState(true);
@@ -78,9 +80,11 @@ function App() {
     }
   })
 
-  const fetchUserWorkspace = async () => {
+ 
+
+  const getUser = async (userid) => {
     try {
-      const response = await fetch(`${apiUrl}/Workspace/GetWorkspacesByUserId/${userId}`, {
+      const response = await fetch(`${apiUrl}/UserManagement/GetUserById/${userid}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json; charset=utf-8",
@@ -89,8 +93,36 @@ function App() {
   
       if (response.ok) {
         const data = await response.json();
-        setWorkspaces(data.workspaces || []);
+        console.log(data)
+        setDefaultWorkspace(data.user.defaultWorkspaceId)
+        
+        fetchDefaultWorkspace(data.user.defaultWorkspaceId)
+        setLoading(false);  
+        return;
+      }
+    } catch (error) {
+      console.error("Error fetching notes:", error);
+    }
+    finally {
+      setLoading(false);
+      loadingRef.current = false;
+    }
+  }
+
+   const fetchDefaultWorkspace = async (defId) => {
+    try {
+      const response = await fetch(`${apiUrl}/Workspace/GetWorkspaceById/${defId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+        }
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        //setWorkspaces(data.workspaces || []);
         setIsInWorkspace(true)
+        setUserDefaultWork(data.workspace.name)
        // setWorkspaces(data.workspaces)
         getUserWorkspaceMapping(userId)
         setLoading(false);  
@@ -104,7 +136,6 @@ function App() {
       loadingRef.current = false;
     }
   }
-
   const getUserWorkspaceMapping = async (userid) => {
     try {
       const response = await fetch(`${apiUrl}/UserWorkspace/GetUserWorkspaceById/${userid}`, {
@@ -171,7 +202,7 @@ function App() {
       return () => window.removeEventListener("scroll", handleScroll);
       }, [loading])
 
-  const initializeUser = () => {
+     const initializeUser = () => {
             try {
                 const userStr = localStorage.getItem("user");
                 if (userStr) {
@@ -179,6 +210,9 @@ function App() {
                     console.log("User from localStorage:", user);
                     setUserId(parseInt(user.id));
                     setIsAuthenticated(true);
+                    getUser(user.id)
+                    //setDefaultWorkspace(user.defaultWorkspaceId)
+                    console.log(defaultWorkspace)
                 }
             } catch (error) {
                 console.error("Error parsing user:", error);
@@ -217,7 +251,7 @@ function App() {
     setLoading(true);
     setError(null);
     try {
-      await Promise.all([fetchNotes(), fetchProjectsAndJobs(), fetchUserWorkspace()]);
+      await Promise.all([fetchNotes(), fetchProjectsAndJobs()]);
     } catch (err) {
       setError(err.message);
       console.error("Initial data loading error:", err);
@@ -587,6 +621,8 @@ function App() {
                     notes={notes} 
                     userRole={userRole}
                     workspaces={workspaces}
+                    defaultUserWorkspaceID={defaultWorkspace}
+                    defaultUserWorkspaceName={userDefaultWork}
                     refreshNotes={fetchInitialData} 
                     addSiteNote={addSiteNote} 
                     updateNote={updateNote}

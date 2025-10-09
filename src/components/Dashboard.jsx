@@ -21,6 +21,8 @@ const Dashboard = ({
   fetchDocuments,
   onLogout,
   workspaces,
+  defaultUserWorkspaceID,
+  defaultUserWorkspaceName,
   onChange, 
   placeholder = "Select an option" 
 }) => {
@@ -47,6 +49,7 @@ const Dashboard = ({
   const [showViewModal, setShowViewModal] = useState(false); 
   const [viewNote, setViewNote] = useState(null);
   const [currentTheme, setCurrentTheme] = useState('gray');
+  const [defaultWorkspace, setDefaultWorkspace] = useState(null)
   const [isDropDownOpen, setIsDropDownOpen] = useState(false)
     
 
@@ -655,7 +658,7 @@ const Dashboard = ({
           </h1>
           
           <div className="dropdown-container">
-                <label>Workspace:</label>
+                <label>{defaultUserWorkspaceName}:</label>
                 <select className="dropdown-items"
                     /* value={selectedWorkspace}
                     onChange={(e) => setSelectedWorkspace(e.target.value)}
