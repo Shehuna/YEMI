@@ -95,7 +95,6 @@ function App() {
         const data = await response.json();
         console.log(data)
         setDefaultWorkspace(data.user.defaultWorkspaceId)
-        
         fetchDefaultWorkspace(data.user.defaultWorkspaceId)
         setLoading(false);  
         return;
@@ -244,6 +243,8 @@ function App() {
     localStorage.removeItem('userToken'); 
     setIsAuthenticated(false);
     setUserRole('')
+    setNotes([])
+    setUserId('')
   };
  
 
