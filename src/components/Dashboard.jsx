@@ -56,7 +56,7 @@ const Dashboard = ({
   const handleThemeChange = (theme) => {
     setCurrentTheme(theme);
   };
-
+  console.log(defaultUserWorkspaceID)
 
  /*  const fetchNotes = async () => {
     try {
@@ -910,6 +910,7 @@ const Dashboard = ({
           onClose={() => setShowSettingsModal(false)} 
           onLogout={onLogout}
           role={userRole}
+          defWorkID={defaultUserWorkspaceID}
         />
       )}
 

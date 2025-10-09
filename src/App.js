@@ -14,6 +14,8 @@ function App() {
   const [defaultWorkspace, setDefaultWorkspace] = useState('')
   const [userDefaultWork, setUserDefaultWork] = useState('')
   const [isInWorkspace, setIsInWorkspace]= useState(false)
+  const [userWorkspaceMaps, setUserWorkspaceMaps] = useState([])
+  const [userWorkspaces, setUserWorkspaces] = useState([])
 
   const [hasMore, setHasMore] = useState(true);
   const loadingRef = useRef(false);
@@ -92,11 +94,8 @@ function App() {
       if (response.ok) {
         const data = await response.json();
         //setWorkspaces(data.workspaces || []);
-        setIsInWorkspace(true)
-        setUserDefaultWork(data.workspace.name)
-       // setWorkspaces(data.workspaces)
-        getUserWorkspaceMapping(userId)
-        setLoading(false);  
+        setUserWorkspaces(data.userWorkspaces || []) 
+        //console.log(userWorkspaces)
         return;
       }
     } catch (error) {
@@ -149,8 +148,8 @@ function App() {
         //setWorkspaces(data.workspaces || []);
         setIsInWorkspace(true)
         setUserDefaultWork(data.workspace.name)
-       // setWorkspaces(data.workspaces)
-        getUserWorkspaceMapping(userId)
+        // setWorkspaces(data.workspaces)
+        //getUserWorkspaceMapping(userId)
         setLoading(false);  
         return;
       }
@@ -280,7 +279,7 @@ function App() {
     setLoading(true);
     setError(null);
     try {
-      await Promise.all([fetchNotes(), fetchProjectsAndJobs()]);
+      await Promise.all([fetchNotes(), fetchProjectsAndJobs(), fetchWorkspaceUserMapping()]);
     } catch (err) {
       setError(err.message);
       console.error("Initial data loading error:", err);

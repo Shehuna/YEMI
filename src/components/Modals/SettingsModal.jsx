@@ -9,7 +9,7 @@ import WorkspaceManagement from '../Workspaces/WorkspaceManagement';
 import ProjectManagement from '../Projects/ProjectManagement';
 import JobManagment from '../Jobs/JobManagment';
 
-const SettingsModal = ({ isOpen, onClose, onLogout, role }) => { 
+const SettingsModal = ({ isOpen, onClose, onLogout, role, defWorkID }) => { 
     const [activeTab, setActiveTab] = useState(null);
     const [projects, setProjects] = useState([]);
     const [jobs, setJobs] = useState([]);
@@ -378,7 +378,7 @@ useEffect(() => {
 
         switch (activeTab) {
             case 'projectManagement':
-                return <ProjectManagement />;
+                return <ProjectManagement workspaceId={defWorkID}/>;
             case 'jobManagement':
                 return <JobManagment />;
             case 'userManagement':

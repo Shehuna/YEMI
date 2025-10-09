@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import Modal from '../Modals/Modal';
 
-const ProjectManagement = () => {
+const ProjectManagement = ({workspaceId}) => {
      const [projects, setProjects] = useState([])
      const [selectedProject, setSelectedProject] = useState('')
      const [newProjectName, setNewProjectName] = useState('');
@@ -11,23 +11,23 @@ const ProjectManagement = () => {
      const [newProjectDescription, setNewProjectDescription] = useState('');
      const [selectedWorkspace, setSelectedWorkspace] = useState('');
      const [newProjectStatus, setNewProjectStatus] = useState(1);
-     const [workspaces, setWorkspaces] = useState([]);
+     const [workspaceName, setWorkspaceName] = useState('');
      const [loading, setLoading] = useState(true);
      const [error, setError] = useState(null);
 
      const API_URL = process.env.REACT_APP_API_BASE_URL
 
       useEffect(() => {
-            fetchWorkspaces();
+            fetchWorkspacesById();
             fetchProjects();
             const user = JSON.parse(localStorage.getItem('user'));
             setUser(user.id)
         }, []);
          
-    const fetchWorkspaces = async () => {
+    const fetchWorkspacesById = async () => {
         setLoading(true);
         try {
-        const response = await fetch(`${API_URL}/api/Workspace/GetWorkspace`,{
+        const response = await fetch(`${API_URL}/api/Workspace/GetWorkspaceById/${workspaceId}`,{
             method: 'GET'
         });
         
@@ -36,7 +36,8 @@ const ProjectManagement = () => {
         }
         
         const data = await response.json();
-        setWorkspaces(data.workspaces || []);
+        setWorkspaceName(data.workspace.name)
+        //setWorkspaces(data.workspaces || []);
         } catch (err) {
         setError(err.message);
         console.error('Error fetching Workspaces:', err);
@@ -91,7 +92,7 @@ const ProjectManagement = () => {
                 body: JSON.stringify({ 
                     name: newProjectName, 
                     description: newProjectDescription, 
-                    workspaceId: parseInt(selectedWorkspace),
+                    workspaceId: workspaceId,
                     userId: user
                 })
             });
@@ -185,19 +186,11 @@ const ProjectManagement = () => {
                             <div className="form-group">
                                 <label>Workspace:</label>
                                 <select
-                                    value={selectedWorkspace}
-                                    onChange={(e) => setSelectedWorkspace(e.target.value)}
-                                    disabled={workspaces.length === 0}
+                                    value={workspaceId}
+                                    //onChange={(e) => setSelectedWorkspace(e.target.value)}
+                                    disabled
                                 >
-                                    {workspaces.length === 0 ? (
-                                        <option value="">No workspaces available</option>
-                                    ) : (
-                                        workspaces.map(workspace => (
-                                            <option key={workspace.id} value={workspace.id}>
-                                                {workspace.name}
-                                            </option>
-                                        ))
-                                    )}
+                                    <option value={workspaceId}>{workspaceName}</option>
                                 </select>
                             </div>
                             <div className="form-group">
@@ -221,7 +214,7 @@ const ProjectManagement = () => {
                                 <button
                                     className="btn-primary"
                                     onClick={handleAddProject}
-                                    disabled={!newProjectName || !selectedWorkspace}
+                                    disabled={!newProjectName }
                                 >
                                     OK
                                 </button>
