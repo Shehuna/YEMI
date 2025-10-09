@@ -3,6 +3,7 @@ import Modal from '../Modals/Modal';
 
 const ProjectManagement = ({workspaceId}) => {
      const [projects, setProjects] = useState([])
+     const [filteredProjects, setFilteredProjects] = useState([])
      const [selectedProject, setSelectedProject] = useState('')
      const [newProjectName, setNewProjectName] = useState('');
      const [user, setUser] = useState('');
@@ -48,7 +49,7 @@ const ProjectManagement = ({workspaceId}) => {
     
     useEffect(() => {
         if (isEditProjectOpen && selectedProject) {
-            const project = projects.find(p => p.id === parseInt(selectedProject));
+            const project = filteredProjects.find(p => p.id === parseInt(selectedProject));
             if (project) {
                 setNewProjectName(project.name || '');
                 setNewProjectStatus(project.status || 1);
@@ -68,12 +69,30 @@ const ProjectManagement = ({workspaceId}) => {
             method: 'GET'
         });
         
-        if (!response.ok) {
+        if (response.ok) {
+            const data = await response.json();
+            const result = data.projects
+            console.log(result)
+            const filterResults = result.filter((res)=>{
+                return res.workspaceId === workspaceId 
+            })
+            setFilteredProjects(filterResults|| []);
+            
+        }
+        else{
             throw new Error('Error fetching users data!');
         }
+        /* if(response.data.success){
+          console.log(response.data.appeals)
+          const data = response.data.appeals
+          const searchResult = await data.filter((dat)=>{
+             return dat.teamLeaderComment !== '' && dat.appealStatus === 'returned'
+          })
+          setFilteredAppeals(searchResult)
+          setTeamLeaderComment(true)
+        } */
         
-        const data = await response.json();
-        setProjects(data.projects || []);
+        
         } catch (err) {
         setError(err.message);
         console.error('Error fetching Workspaces:', err);
@@ -160,7 +179,7 @@ const ProjectManagement = ({workspaceId}) => {
                 onChange={(e) => setSelectedProject(e.target.value)}
             >
                 <option value="">Select a Project</option>
-                {projects.map(project => (
+                {filteredProjects.map(project => (
                     
                     <option 
                         key={project.id} 
