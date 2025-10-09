@@ -281,8 +281,8 @@ const EditNoteModal = ({ note, onClose, refreshNotes, updateNote, uploadDocument
       });
   
       if (result && (result.success || result.id || result.message)) {
-        await refreshNotes();
         onClose();
+        refreshNotes();
       } else {
         throw new Error('Failed to save note: No success confirmation from server');
       }

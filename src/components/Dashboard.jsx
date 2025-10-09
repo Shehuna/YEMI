@@ -19,7 +19,10 @@ const Dashboard = ({
   onUploadDocument, 
   onDeleteDocument, 
   fetchDocuments,
-  onLogout
+  onLogout,
+  workspaces,
+  onChange, 
+  placeholder = "Select an option" 
 }) => {
   //const [notes, setNotes] = useState([]);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
@@ -44,6 +47,8 @@ const Dashboard = ({
   const [showViewModal, setShowViewModal] = useState(false); 
   const [viewNote, setViewNote] = useState(null);
   const [currentTheme, setCurrentTheme] = useState('gray');
+  const [isDropDownOpen, setIsDropDownOpen] = useState(false)
+    
 
   const handleThemeChange = (theme) => {
     setCurrentTheme(theme);
@@ -120,38 +125,7 @@ const Dashboard = ({
     },
   };
 
-  const useInfiniteScroll = (fetchData, initialPage = 1) => {
-  const [data, setData] = useState([]);
-  const [page, setPage] = useState(initialPage);
-  const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const [error, setError] = useState(null);
-
-  const loadMore = useCallback(async () => {
-    if (loading || !hasMore) return;
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetchData(page);
-      setData(prev => [...prev, ...response.data]);
-      setHasMore(response.hasMore);
-      setPage(prev => prev + 1);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [page, loading, hasMore, fetchData]);
-
-  // Initial load
-  useEffect(() => {
-    loadMore();
-  }, []);
-
-  return { data, loading, hasMore, error, loadMore };
-}
+ 
 
   const handleRowClick = useCallback((note) => {
     setSelectedRow(note.id);
@@ -203,6 +177,12 @@ const Dashboard = ({
     return <div className="error">Error: {error}</div>;
   } */
 
+  const handleSelect = (option) => {
+    onChange(option);
+    setIsDropDownOpen(false);
+  };
+
+ 
   const loadDocumentsForView = async (noteId) => {
     try {
       setLoadingDocuments(prev => ({ ...prev, [noteId]: true }));
@@ -294,7 +274,8 @@ const Dashboard = ({
     
     return result;
   }, [notes, hierarchy, selectedValues, searchTerm, searchColumn]);
-  
+
+ 
 
   const handleRowSelect = useCallback((note) => {
     setSelectedRow(note.id);
@@ -672,7 +653,20 @@ const Dashboard = ({
               }}></span>
             </span>
           </h1>
-        
+          
+          <div className="dropdown-container">
+                <label>Workspace:</label>
+                <select className="dropdown-items"
+                    /* value={selectedWorkspace}
+                    onChange={(e) => setSelectedWorkspace(e.target.value)}
+                    disabled={workspaces.length === 0} */
+                >
+                 
+                  {workspaces.map((workspace)=>(
+                                <option key={workspace.id} value={workspace.id}>{workspace.name}</option>
+                            ))}
+                </select>
+            </div>
           <button 
             onClick={() => setShowSettingsModal(true)}
             style={{

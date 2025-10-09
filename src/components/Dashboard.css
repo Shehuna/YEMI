@@ -119,3 +119,16 @@
   justify-content: center;
   align-items: center;
 }
+
+
+.dropdown-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.dropdown-items{
+  padding: 5px;
+  border: 1 soldi gray;
+}
+

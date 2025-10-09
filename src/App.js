@@ -23,19 +23,21 @@ function App() {
   const [files, setFiles] = useState({});
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [documentCounts, setDocumentCounts] = useState({});
+  const [workspaces,setWorkspaces] = useState([])
   const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/api`;
 
    useEffect(() => {
         initializeUser();
+        //fetchNotes(userId)
     }, []);
 
-  const fetchNotes = useCallback(async (userid) => {
+  const fetchNotes = useCallback(async () => {
     if (loadingRef.current) return;
     
     loadingRef.current = true;
     setLoading(true);
     try {
-      const response = await fetch(`${apiUrl}/SiteNote/GetSiteNotes?pageNumber=${page}&pageSize=${pageSize}&userId=${userid}`, {
+      const response = await fetch(`${apiUrl}/SiteNote/GetSiteNotes?pageNumber=1&pageSize=${pageSize}&userId=${userId}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json; charset=utf-8",
@@ -76,9 +78,9 @@ function App() {
     }
   })
 
-  const fetchUserWorkspace = async (userid) => {
+  const fetchUserWorkspace = async () => {
     try {
-      const response = await fetch(`${apiUrl}/Workspace/GetWorkspacesByUserId/${userid}`, {
+      const response = await fetch(`${apiUrl}/Workspace/GetWorkspacesByUserId/${userId}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json; charset=utf-8",
@@ -86,8 +88,11 @@ function App() {
       });
   
       if (response.ok) {
+        const data = await response.json();
+        setWorkspaces(data.workspaces || []);
         setIsInWorkspace(true)
-        getUserWorkspaceMapping(userid)
+       // setWorkspaces(data.workspaces)
+        getUserWorkspaceMapping(userId)
         setLoading(false);  
         return;
       }
@@ -148,7 +153,7 @@ function App() {
 
   useEffect(() => {
         if (userId) {
-            fetchInitialData(userId);
+            fetchInitialData();
         }
     }, [userId]); 
 
@@ -208,11 +213,11 @@ function App() {
   };
  
 
-  const fetchInitialData = async (id) => {
+  const fetchInitialData = async () => {
     setLoading(true);
     setError(null);
     try {
-      await Promise.all([fetchNotes(id), fetchProjectsAndJobs(), fetchUserWorkspace(id)]);
+      await Promise.all([fetchNotes(), fetchProjectsAndJobs(), fetchUserWorkspace()]);
     } catch (err) {
       setError(err.message);
       console.error("Initial data loading error:", err);
@@ -581,7 +586,8 @@ function App() {
                   <Dashboard 
                     notes={notes} 
                     userRole={userRole}
-                    refreshNotes={fetchNotes} 
+                    workspaces={workspaces}
+                    refreshNotes={fetchInitialData} 
                     addSiteNote={addSiteNote} 
                     updateNote={updateNote}
                     projects={projects} 
