@@ -187,10 +187,10 @@ const WorkspaceManagement = ({role}) => {
      
     <div className="settings-content">
         <div className="settings-action-buttons">
-            <button className="btn-primary" onClick={() => setIsAddWorkspaceOpen(true)} disabled={role === 2}>
+            <button className="btn-primary" onClick={() => setIsAddWorkspaceOpen(true)} disabled>
                 Add Workspace
             </button>
-            <button className="btn-secondary" onClick={() => setIsEditWorkspaceOpen(true)} disabled={!selectedWorkspace || role === 2}>
+            <button className="btn-secondary" onClick={() => setIsEditWorkspaceOpen(true)} disabled>
                 Edit Workspace
             </button>
         </div>
