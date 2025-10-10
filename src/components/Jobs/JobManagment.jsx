@@ -208,6 +208,7 @@ const JobManagment = () => {
                     setIsAddJobOpen(false);
                 }}
                 title="Add Job"
+                customClass="modal-sm"
             >
                 <div className="settings-form">
                     <div className="form-group">
@@ -270,6 +271,7 @@ const JobManagment = () => {
                 setIsEditJobOpen(false);
             }}
             title="Edit Job"
+            customClass="modal-sm"
         >
             <div className="settings-form">
                 <div className="form-group">
