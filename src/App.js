@@ -110,6 +110,11 @@ function App() {
     }
   }
 
+  const updateDefaultWorkspace = (newDefId, newDefName) => {
+    setDefaultWorkspace(newDefId)
+    setUserDefaultWork(newDefName)
+  };
+
    const fetchDefaultWorkspace = async (defId) => {
     try {
       const response = await fetch(`${apiUrl}/Workspace/GetWorkspaceById/${defId}`, {
@@ -626,6 +631,7 @@ function App() {
                     workspaces={workspaces}
                     defaultUserWorkspaceID={defaultWorkspace}
                     defaultUserWorkspaceName={userDefaultWork}
+                    onUpdateDefaultWorkspace={updateDefaultWorkspace}
                     refreshNotes={fetchInitialData} 
                     addSiteNote={addSiteNote} 
                     updateNote={updateNote}

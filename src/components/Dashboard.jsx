@@ -23,6 +23,7 @@ const Dashboard = ({
   workspaces,
   defaultUserWorkspaceID,
   defaultUserWorkspaceName,
+  onUpdateDefaultWorkspace,
   onChange, 
   placeholder = "Select an option" 
 }) => {
@@ -405,7 +406,7 @@ const Dashboard = ({
     
     for (let i = 0; i < userWorkspaces.length; i++) {
             if(userWorkspaces[i].userID === userid && userWorkspaces[i].workspaceID === defaultUserWorkspaceID){
-              console.log(userWorkspaces[i].userID === userid)
+              
               setRole(userWorkspaces[i].role)
         }
     }
@@ -978,6 +979,7 @@ const Dashboard = ({
           onLogout={onLogout}
           defWorkID={defaultUserWorkspaceID}
           role={role}
+          onUpdateDefaultWorkspace={onUpdateDefaultWorkspace}
         />
       )}
 

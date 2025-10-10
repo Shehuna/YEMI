@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Modal from '../Modals/Modal';
 import toast from 'react-hot-toast';
 
-const WorkspaceManagement = ({role}) => {
+const WorkspaceManagement = ({role, onUpdateDefaultWorkspace}) => {
     
     const [workspaceName, setWorkspaceName] = useState('');
     const [ownerUserID, setOwnerUserID] = useState('');
@@ -183,6 +183,20 @@ const WorkspaceManagement = ({role}) => {
         console.error('Error adding workspace:', err);
     }
   }
+
+  const updateDefWorkspace = () =>{
+    onUpdateDefaultWorkspace(selectedWorkspace, workspaceName)
+  }
+
+  const handleOptionClick = (works) => {
+        setWorkspaceName(works.name)
+        setOwnerType(works.ownerType)
+        setOwnerName(works.ownerName)
+        setAddressLine1(works.addressLine1)
+        setCity(works.city)
+        setCountry(works.country)
+        setStatus(works.status)
+  }
   return (
      
     <div className="settings-content">
@@ -192,6 +206,9 @@ const WorkspaceManagement = ({role}) => {
             </button>
             <button className="btn-secondary" onClick={() => setIsEditWorkspaceOpen(true)} disabled>
                 Edit Workspace
+            </button>
+            <button className="btn-secondary" onClick={updateDefWorkspace} disabled={!selectedWorkspace}>
+                Select Workspace
             </button>
         </div>
         <div className="settings-lookup-list">
@@ -204,7 +221,7 @@ const WorkspaceManagement = ({role}) => {
             >
                 <option value="">Select a Workspace</option>
                 {workspaces.map(workspace => (
-                    <option key={workspace.id} value={workspace.id}>
+                    <option onClick={()=>handleOptionClick(workspace)} key={workspace.id} value={workspace.id}>
                         {workspace.name}
                     </option>
                 ))}

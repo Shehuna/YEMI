@@ -9,7 +9,7 @@ import WorkspaceManagement from '../Workspaces/WorkspaceManagement';
 import ProjectManagement from '../Projects/ProjectManagement';
 import JobManagment from '../Jobs/JobManagment';
 
-const SettingsModal = ({ isOpen, onClose, onLogout, role, defWorkID }) => { 
+const SettingsModal = ({ isOpen, onClose, onLogout, role, defWorkID, onUpdateDefaultWorkspace }) => { 
     const [activeTab, setActiveTab] = useState(null);
     const [projects, setProjects] = useState([]);
     const [jobs, setJobs] = useState([]);
@@ -388,7 +388,7 @@ useEffect(() => {
             case 'jobStatus':
                 return renderJobStatusUpdate();
             case 'workspaceSettings':
-                return <WorkspaceManagement role={role}/>;
+                return <WorkspaceManagement role={role} onUpdateDefaultWorkspace={onUpdateDefaultWorkspace}/>;
             default:
                 return <div>Unknown settings option</div>;
         }
