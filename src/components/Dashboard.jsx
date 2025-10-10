@@ -733,12 +733,9 @@ const Dashboard = ({
               }}></span>
             </span>
           </h1>
-          
-          <div className="dropdown-container">
-                <label>{defaultUserWorkspaceName ? defaultUserWorkspaceName : 'Default Workspace'}</label>
-                
-            </div>
-          <button 
+           <div>
+              <p className="dropdown-container">{defaultUserWorkspaceName ? defaultUserWorkspaceName : 'Default Workspace'}</p>
+              <button 
             onClick={() => setShowSettingsModal(true)}
             style={{
               background: 'rgba(52, 152, 219, 0.1)',
@@ -760,6 +757,8 @@ const Dashboard = ({
           >
             <i className="fas fa-sliders-h" />
           </button>
+            </div>
+          
         </div>
   
         <div 

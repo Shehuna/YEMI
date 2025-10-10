@@ -122,9 +122,9 @@
 
 
 .dropdown-container {
-    display: flex;
-    align-items: center;
-    gap: 15px;
+    color: gray;
+    margin-top: -20px;
+   
 }
 
 .dropdown-items{
