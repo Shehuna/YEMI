@@ -735,17 +735,8 @@ const Dashboard = ({
           </h1>
           
           <div className="dropdown-container">
-                <label>{defaultUserWorkspaceName ? defaultUserWorkspaceName : 'Default Workspace'}:</label>
-                <select className="dropdown-items"
-                    /* value={selectedWorkspace}
-                    onChange={(e) => setSelectedWorkspace(e.target.value)}
-                    disabled={workspaces.length === 0} */
-                >
-                  <option value="">Select</option>
-                  {userWorkspaces.map((workspace, index)=>(
-                        <option key={`${workspace.id}-${index}`} value={workspace.id}>{workspace.name}</option>
-                    ))}
-                </select>
+                <label>{defaultUserWorkspaceName ? defaultUserWorkspaceName : 'Default Workspace'}</label>
+                
             </div>
           <button 
             onClick={() => setShowSettingsModal(true)}
