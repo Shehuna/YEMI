@@ -342,7 +342,7 @@ useEffect(() => {
                     key={option.id}
                     className="settings-option"
                     onClick={() => setActiveTab(option.id)}
-                    disabled={option.id === 'workspaceSettings' && role !== 1 }
+                    disabled={option.id !== 'workspaceSettings' && role !== 1}
                     aria-label={`Open ${option.text} settings`}
                 >
                     
