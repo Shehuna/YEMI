@@ -734,7 +734,7 @@ const Dashboard = ({
             </span>
           </h1>
            <div>
-              <p className="dropdown-container">{defaultUserWorkspaceName ? defaultUserWorkspaceName : 'Default Workspace'}</p>
+              <p className="dropdown-container">{defaultUserWorkspaceName}</p>
               <button 
             onClick={() => setShowSettingsModal(true)}
             style={{
