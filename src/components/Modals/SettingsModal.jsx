@@ -37,7 +37,7 @@ const SettingsModal = ({ isOpen, onClose, onLogout, role, defWorkID }) => {
     const [newJobStatus, setNewJobStatus] = useState(1);
     const [newProjectStatus, setNewProjectStatus] = useState(1);
     const navigate = useNavigate();
-
+    console.log(role)
     useEffect(() => {
         if (isOpen) {
             fetchInitialData();
@@ -342,7 +342,7 @@ useEffect(() => {
                     key={option.id}
                     className="settings-option"
                     onClick={() => setActiveTab(option.id)}
-                    disabled={role === '' && option.id !== 'workspaceSettings'}
+                    disabled={option.id === 'workspaceSettings' || role !== 1 }
                     aria-label={`Open ${option.text} settings`}
                 >
                     

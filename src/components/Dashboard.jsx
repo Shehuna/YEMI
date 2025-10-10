@@ -52,10 +52,12 @@ const Dashboard = ({
   const [defaultWorkspace, setDefaultWorkspace] = useState(null)
   const [isDropDownOpen, setIsDropDownOpen] = useState(false)
   const [userWorkspaces, setUserWorkspaces] = useState([])
+  const [role, setRole] = useState('')
   
 
   const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/api`;
-  console.log(userid)
+  console.log(defaultUserWorkspaceID)
+  
 
   const handleThemeChange = (theme) => {
     setCurrentTheme(theme);
@@ -242,7 +244,9 @@ const Dashboard = ({
   }; */
 
   useEffect(() => {
+    
     fetchWorkspaceUserMapping()
+    
     // const fetchAllDocumentCounts = async () => {
     //   for (const note of notes) {
     //     if (!documentCounts.hasOwnProperty(note.id) && !loadingCounts[note.id]) {
@@ -382,15 +386,11 @@ const Dashboard = ({
   
       if (response.ok) {
         const data = await response.json();
+        setUserWorkspaces(data.userWorkspaces)
+        await checkRole(data.userWorkspaces)
         //console.log(data.userWorkspaces)
         fetchWorkspaceByUserId(data.userWorkspaces)
-        //setWorkspaces(data.workspaces || []);
-        //setUserWorkspaces(data.userWorkspaces || []) 
-        /* for (let i = 0; i < data.userWorkspaces.length; i++) {
-            if(data.userWorkspaces[i].userID === userid){
-              console.log(data.userWorkspaces[i].workspaceID)
-            }
-          } */
+        
         return
       }
     } catch (error) {
@@ -398,6 +398,16 @@ const Dashboard = ({
     }
     finally {
       setLoading(false);
+    }
+  }
+
+  const checkRole = async(userWorkspaces) =>{
+    
+    for (let i = 0; i < userWorkspaces.length; i++) {
+            if(userWorkspaces[i].userID === userid && userWorkspaces[i].workspaceID === defaultUserWorkspaceID){
+              console.log(userWorkspaces[i].userID === userid)
+              setRole(userWorkspaces[i].role)
+        }
     }
   }
 
@@ -977,6 +987,7 @@ const Dashboard = ({
           onClose={() => setShowSettingsModal(false)} 
           onLogout={onLogout}
           defWorkID={defaultUserWorkspaceID}
+          role={role}
         />
       )}
 
