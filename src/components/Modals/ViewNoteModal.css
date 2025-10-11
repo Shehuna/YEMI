@@ -160,20 +160,14 @@
     background-color: var(--message-received-bg-color);
     align-self: flex-start; 
     color: var(--text-color);
-    
-    /* 💥 CRITICAL FIX: Tell the message box to fill the available space */
     flex-grow: 1; 
-    
-    /* These ensure consistent placement on the left and spacing from the icon */
     margin-right: 4px !important; 
     margin-left: 0 !important;
-    
-    /* Keep the original max-width from the top of your CSS */
     max-width: 80%;
 }
 
 .message.received.selected {
-  border: 2px solid #34b7f1; /* Highlight border for the selected note */
+  border: 2px solid #34b7f1; 
 }
 
 .message-header {
@@ -271,38 +265,27 @@
 }
 .whatsapp-chat .message-row {
     display: flex;
-    /* Aligns the entire message bubble and icon group to the left side */
     justify-content: flex-start; 
-    /* Message then Paperclip */
     flex-direction: row; 
-    /* Align both the message and the icon to the bottom of the row */
     align-items: flex-end; 
     margin-bottom: 8px; 
     width: 100%; 
 }
 
-/* 2. Style the Message Bubble */
 .message.received {
-    /* Critical Fix: Your existing CSS already had align-self: flex-start; and margin-right: auto;
-       We are now overriding margin-right: auto; to prevent it from pushing the bubble too far left. */
     align-self: flex-start; 
-    margin-right: 4px !important; /* Forces a small gap between the bubble and the icon */
-    margin-left: 0 !important; /* Ensures the message starts right at the left edge */
-    /* max-width: 80%; remains from your existing code, which is correct */
+    margin-right: 4px !important; 
+    margin-left: 0 !important;
 }
 
-/* 3. Container for the paperclip */
 .whatsapp-chat .paperclip-container {
     display: flex;
-    /* Ensures the button is vertically aligned with the message bubble's bottom edge */
     align-items: flex-end; 
     padding: 0 4px;
     height: auto;
-    /* Ensure this element doesn't take up any extra width beyond its content */
     flex-shrink: 0; 
 }
 
-/* Paperclip Button Styles (Keep these the same) */
 .whatsapp-chat .paperclip-button {
     background: none;
     border: none;
