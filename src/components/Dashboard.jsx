@@ -15,7 +15,6 @@ const Dashboard = ({
   totalCount, 
   handlePageSize,
   handlePageChange,
-  getPageNumbers,
   refreshNotes, 
   addSiteNote, 
   updateNote, 
@@ -50,6 +49,7 @@ const Dashboard = ({
   const [showViewModal, setShowViewModal] = useState(false); 
   const [viewNote, setViewNote] = useState(null);
   const [currentTheme, setCurrentTheme] = useState('gray');
+
 
   const handleThemeChange = (theme) => {
     setCurrentTheme(theme);
@@ -372,37 +372,13 @@ const Dashboard = ({
   setShowNewModal(true);
 };
 
-  const handleViewAttachments = async (note) => {
-    try {
-      console.log("Starting document fetch for note:", note.id);
-      
-      setSelectedFileNote(note);
-      setShowAttachedFileModal(true);
-  
-      const response = await fetch(
-          `${process.env.REACT_APP_API_BASE_URL}/api/Documents?reference=${note.id}`
-      );
-  
-      console.log("Response status:", response.status);
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Server responded with ${response.status}: ${errorText}`);
-      }
-
-      const documents = await response.json().documents || [];
-      console.log("Received documents:", documents);
-
-      setNoteDocuments(prev => ({
-        ...prev,
-        [note.id]: documents
-      }));
-
-    } catch (error) {
-      console.error("Document load failed:", error);
-      setError(`Failed to load documents: ${error.message}`);
-    }
-  };
+  const handleViewAttachments = useCallback(async (note) => {
+    setShowViewModal(false);
+    setSelectedFileNote(note); 
+    setShowAttachedFileModal(true);
+    
+    loadDocuments(note.id);
+}, [loadDocuments]);
 
   const handleUploadDocumentWrapper = async (documentName, file, noteId) => { 
     try {
@@ -759,17 +735,7 @@ const Dashboard = ({
             </button>
           )}
         </div>
-      <div className="page-size-selector">
-        <label>Items per page: </label>
-        <select 
-          value={pageSize} 
-          onChange={(e) => handlePageSize(Number(e.target.value))}
-        >
-          <option value={10}>10</option>
-          <option value={20}>20</option>
-          <option value={50}>50</option>
-        </select>
-      </div>
+      
   <div className="responsive-table-container">
         <table>
           <thead>
@@ -874,57 +840,7 @@ const Dashboard = ({
           </tbody>
         </table>
         </div>
-        <div className="pagination-controls">
-        <div className="pagination-info">
-          Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, totalCount)} of {totalCount} items
-        </div>
-        
-        <div className="pagination-buttons">
-          {/* First Page */}
-          <button
-            onClick={() => handlePageChange(1)}
-            disabled={currentPage === 1 }
-          >
-            First
-          </button>
-
-          {/* Previous Page */}
-          <button
-           onClick={() => handlePageChange(currentPage - 1)}
-           disabled={currentPage === 1 }
-          >
-            Previous
-          </button>
-
-          {/* Page Numbers */}
-          {getPageNumbers().map(page => (
-            <button
-              key={page}
-              onClick={() => handlePageChange(page)}
-              //disabled={loading}
-              className={currentPage === page ? 'active' : ''}
-            >
-              {page}
-            </button>
-          ))} 
-
-          {/* Next Page */}
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-          >
-            Next
-          </button>
-
-          {/* Last Page */}
-          <button
-            onClick={() => handlePageChange(totalPages)}
-            disabled={currentPage === totalPages}
-          >
-            Last
-          </button>
-        </div>
-      </div>
+       
       </div>
 
       {showSettingsModal && (
@@ -944,6 +860,7 @@ const Dashboard = ({
           }}
           documents={filteredNotes} 
           currentTheme={currentTheme}
+          onViewAttachments={handleViewAttachments}
         />
       )}
   
@@ -995,35 +912,7 @@ const Dashboard = ({
         />
       )}
 
-      {error && (
-        <div className="error-message" style={{
-          position: 'fixed',
-          top: '20px',
-          right: '20px',
-          padding: '15px',
-          backgroundColor: '#ffebee',
-          color: '#c62828',
-          borderRadius: '4px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          zIndex: 1000
-        }}>
-          <span>{error}</span>
-          <button 
-            onClick={() => setError(null)}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#c62828',
-              cursor: 'pointer',
-              fontSize: '16px'
-            }}
-          >
-            Dismiss
-          </button>
-        </div>
-      )}
+      
       
     </div>
   );

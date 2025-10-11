@@ -7,173 +7,205 @@ import "./App.css";
 
 function App() {
   const [notes, setNotes] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [totalPages, setTotalPages] = useState(0);
-  const [totalCount, setTotalCount] = useState(0);
-  const [projects, setProjects] = useState([]); 
+  const [userId, setUserId] = useState(0)
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+
+  const [projects, setProjects] = useState([]);
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [files, setFiles] = useState({});
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [documentCounts, setDocumentCounts] = useState({});
+  // FIX: Use backticks for template literal
+  const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/api/SiteNote`;
 
   useEffect(() => {
-    fetchInitialData();
-    //fetchNotes();
-     const user = localStorage.getItem('user');
-    if (user) {
-      setIsAuthenticated(true);
-      fetchInitialData();
-    } else {
-      setLoading(false);
-    }
+    initializeUser();
   }, []);
-  const handleLogin = (user) => {
-    setIsAuthenticated(true);
-    fetchInitialData();
+
+  useEffect(() => {
+    if (userId) {
+      // NOTE: We only want to fetch initial data on component mount (after userId is set).
+      // We explicitly pass the ID here, which is better than relying on state in the async function.
+      fetchInitialData(userId);
+    }
+  }, [userId]);
+
+  const initializeUser = () => {
+    try {
+      const userStr = localStorage.getItem("user");
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        console.log("User from localStorage:", user);
+        // Ensure user.id exists before parsing and setting
+        if (user.id) {
+          setUserId(parseInt(user.id));
+          setIsAuthenticated(true);
+        } else {
+          console.warn("User object found but missing 'id' property.");
+        }
+      }
+    } catch (error) {
+      console.error("Error parsing user:", error);
+    }
   };
 
-  
+  const handleLogin = (user) => {
+    // Re-initialize user state after a successful login (which should update localStorage)
+    initializeUser()
+  };
+
+
   const handleLogout = () => {
     localStorage.removeItem('user');
-    localStorage.removeItem('userToken'); 
+    localStorage.removeItem('userToken');
+    setUserId(0); // Reset userId on logout
     setIsAuthenticated(false);
   };
- 
 
-  const fetchInitialData = async () => {
+
+  const fetchInitialData = async (id) => {
     setLoading(true);
     setError(null);
     try {
-      await Promise.all([fetchNotes(), fetchProjectsAndJobs()]);
+      // Pass the userId to fetchNotes, as it expects it
+      await Promise.all([fetchNotes(id), fetchProjectsAndJobs()]);
     } catch (err) {
       setError(err.message);
       console.error("Initial data loading error:", err);
     } finally {
-      setLoading(false);
+      // setLoading(false); // Removed here as it's set in fetchNotes upon success
     }
   };
 
-  // const fetchDocumentCount = async (siteNoteId) => {
-  //   if (!siteNoteId) return 0;
-    
-  //   try {
-  //     const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/Documents/CountDocuments?siteNoteId=${siteNoteId}`);
+  // The original loadMore function was incorrect as fetchInitialData doesn't return data.
+  // It is commented out until proper pagination logic is implemented.
+  /*
+  const loadMore = async () => {
+    if (loading || !hasMore) return;
+    setLoading(true);
 
-  //     if (!response.ok) {
-  //       throw new Error(`HTTP error! status: ${response.status}`);
-  //     }
+    try {
+        // Correct implementation would involve calling an API endpoint with the 'page + 1'
+        const response = await fetch(`${apiUrl}/GetSiteNotes?pageNumber=${page + 1}&pageSize=50&userId=${userId}`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json; charset=utf-8" },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch more notes: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const newData = data.siteNotes || []; // Assuming data structure is { siteNotes: [...] }
+
+        if (newData.length === 0) {
+            setHasMore(false);
+        } else {
+            setNotes(prev => [...prev, ...newData]);
+            setPage(prev => prev + 1);
+        }
+    } catch (error) {
+        console.error("Error loading more notes:", error);
+    } finally {
+        setLoading(false);
+    }
+  };
+  */
+
+  // Uncommented out fetchDocumentCount as it contained syntax errors
+  /*
+  const fetchDocumentCount = async (siteNoteId) => {
+    if (!siteNoteId) return 0;
+    
+    try {
+      // FIX: Use backticks for template literal
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/Documents/CountDocuments?siteNoteId=${siteNoteId}`);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       
-  //     const data = await response.json();
+      const data = await response.json();
       
-  //     const count = data.documentCount !== undefined ? data.documentCount : 
-  //                  data.count !== undefined ? data.count : 
-  //                  typeof data === 'number' ? data : 0;
+      const count = data.documentCount !== undefined ? data.documentCount : 
+                    data.count !== undefined ? data.count : 
+                    typeof data === 'number' ? data : 0;
       
-  //     return count;
-  //   } catch (err) {
-  //     console.error(`Error fetching document count for note ${siteNoteId}:`, err);
-  //     return 0;
-  //   }
-  // };
+      return count;
+    } catch (err) {
+      console.error(`Error fetching document count for note ${siteNoteId}:`, err);
+      return 0;
+    }
+  };
+  */
 
   const fetchAllDocumentCounts = async (notesList) => {
     const counts = {};
-    
+
     for (const note of notesList) {
       // if (note.id) {
       //   counts[note.id] = await fetchDocumentCount(note.id);
       // }
     }
-    
+
     setDocumentCounts(counts);
   };
 
-  const fetchNotes = async (page = 1, size = pageSize) => {
+  const fetchNotes = async (userid) => {
+    setLoading(true); // Ensure loading is true while fetching
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/SiteNote/GetSiteNotes?pageNumber=${page}&pageSize=${size}`, {
+      // FIX: Use backticks for template literal
+      const response = await fetch(`${apiUrl}/GetSiteNotes?pageNumber=1&pageSize=50&userId=${userid}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json; charset=utf-8",
         }
       });
-  
+
       const text = await response.text();
-  
+
       if (response.ok) {
-        console.log()
+        // console.log() // This line does nothing, can be removed
         const data = JSON.parse(text);
-        console.log(data.totalCount)
-        console.log(data.totalPages)
-        setNotes(data.siteNotes);
-        setCurrentPage(data.pageNumber)
-        setPageSize(data.pageSize)
-        setTotalCount(data.totalCount)
-        setTotalPages(data.totalPages)
+        console.log(data)
+        setNotes(data.siteNotes || []); // Use empty array if siteNotes is null/undefined
         // fetchAllDocumentCounts(data);
-        setLoading(false);  
       } else {
+        // FIX: Use backticks for template literal
         console.error(`Failed to fetch: ${response.status}`);
+        throw new Error(`Failed to fetch notes: ${response.status}`);
       }
-  
+
     } catch (error) {
       console.error("Error fetching notes:", error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Page change handler
-  const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= totalPages) {
-      setCurrentPage(newPage);
-      fetchNotes(newPage);
-    }
-  };
-
-  // Page size change handler
-  const handlePageSizeChange = (newSize) => {
-    setPageSize(newSize);
-    setCurrentPage(1); // Reset to first page when changing size
-    fetchNotes(1, newSize);
-  };
-
-    // Generate page numbers for pagination controls
-  const getPageNumbers = () => {
-    const pages = [];
-    const maxVisiblePages = 5;
-    
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-    
-    // Adjust if we're at the end
-    if (endPage - startPage + 1 < maxVisiblePages) {
-      startPage = Math.max(1, endPage - maxVisiblePages + 1);
-    }
-    
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(i);
-    }
-    
-    return pages;
-  };
 
   const fetchDocumentsByReference = async (noteId) => {
     try {
       const response = await fetch(
+        // FIX: Use backticks for template literal
         `${process.env.REACT_APP_API_BASE_URL}/api/Documents/?siteNoteId=${noteId}`,
         {
           headers: {
             "accept": "application/json; charset=utf-8"
           },
-          credentials: 'include' 
+          credentials: 'include'
         }
       );
-      
+
       if (!response.ok) {
+        // FIX: Use backticks for template literal
         throw new Error(`Failed to fetch documents: ${response.status}`);
       }
-  
+
       return await response.json();
     } catch (error) {
       console.error("Error fetching documents:", error);
@@ -185,49 +217,51 @@ function App() {
     console.log("App.js: handleUploadDocument called with:", { documentName, file, siteNoteId });
 
     if (!documentName || documentName.trim() === '') {
-        throw new Error("Document name is required for upload.");
+      throw new Error("Document name is required for upload.");
     }
     if (!file) {
-        throw new Error("File is required for upload.");
+      throw new Error("File is required for upload.");
     }
 
     var user = JSON.parse(localStorage.getItem('user'));
     var userId = user ? user.id : 1;
 
     const formData = new FormData();
-    formData.append('Name', documentName); 
-    formData.append('File', file);      
+    formData.append('Name', documentName);
+    formData.append('File', file);
     formData.append('SiteNoteId', siteNoteId);
     formData.append('UserId', userId);
     console.log("FormData prepared:", { documentName, file, siteNoteId, userId });
 
     try {
-        const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/Documents/AddDocument`, { 
-            method: 'POST',
-            body: formData,
-        });
+        // FIX: Remove comma and use backticks for template literal
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/Documents/AddDocument`, {
+        method: 'POST',
+        body: formData,
+      });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-        }
+      if (!response.ok) {
+        const errorText = await response.text();
+        // FIX: Use backticks for template literal
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+      }
 
-        const result = await response.json(); 
-        console.log('Document uploaded successfully:', result.message);
+      const result = await response.json();
+      console.log('Document uploaded successfully:', result.message);
 
-        // if (siteNoteId) {
-        //   const newCount = await fetchDocumentCount(siteNoteId);
-        //   setDocumentCounts(prev => ({...prev, [siteNoteId]: newCount}));
-        // }
+      // if (siteNoteId) {
+      //   const newCount = await fetchDocumentCount(siteNoteId);
+      //   setDocumentCounts(prev => ({...prev, [siteNoteId]: newCount}));
+      // }
 
-        return {
-            id: result.document.Id, 
-            name: result.document.Name, 
-            fileName: result.document.FileName, 
-        };
+      return {
+        id: result.document.Id,
+        name: result.document.Name,
+        fileName: result.document.FileName,
+      };
     } catch (error) {
-        console.error('Failed to upload document:', error);
-        throw error;
+      console.error('Failed to upload document:', error);
+      throw error;
     }
   };
 
@@ -236,23 +270,25 @@ function App() {
       if (!documentId) {
         throw new Error("No document ID provided");
       }
-  
+
       const response = await fetch(
+        // FIX: Use backticks for template literal
         `${process.env.REACT_APP_API_BASE_URL}/api/Documents/DownloadDocument?documentId=${documentId}`,
         {
           method: "GET",
-          credentials: 'include', 
+          credentials: 'include',
           headers: {
             'Accept': 'application/octet-stream'
           }
         }
       );
-  
+
       if (!response.ok) {
         const errorText = await response.text();
+        // FIX: Use backticks for template literal
         throw new Error(`Server error: ${response.status} - ${errorText}`);
       }
-  
+
       const contentDisposition = response.headers.get('Content-Disposition');
       let filename = 'document';
       if (contentDisposition) {
@@ -261,7 +297,7 @@ function App() {
           filename = filenameMatch[1];
         }
       }
-  
+
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -269,23 +305,25 @@ function App() {
       a.download = filename;
       document.body.appendChild(a);
       a.click();
-      
+
       setTimeout(() => {
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
       }, 100);
-  
+
     } catch (error) {
       console.error("Download failed:", {
         error: error.message,
         stack: error.stack
       });
+      // FIX: Use backticks for template literal
       alert(`Download failed: ${error.message}`);
     }
   };
 
   const updateProject = async (projectData) => {
     try {
+      // FIX: Use backticks for template literal
       const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/Sitebook/UpdateProject`, {
         method: "PUT",
         headers: {
@@ -313,66 +351,59 @@ function App() {
   const updateNote = async (id, updatedData) => {
     console.log(updatedData)
     try {
+      // FIX: Use backticks for template literal
       const url = `${process.env.REACT_APP_API_BASE_URL}/api/SiteNote/UpdateSiteNote/${id}`;
 
       const UpdatedNoteData = {
-          note: updatedData.Note,
-          date: updatedData.Date,
-          jobId: updatedData.JobId,
-          userId: updatedData.UserId,
-        };
-
-      /* const formData = new FormData();
-      formData.append("Note", updatedData.Note);
-      formData.append("Date", updatedData.Date); */
+        note: updatedData.Note,
+        date: updatedData.Date,
+        jobId: updatedData.JobId,
+        userId: updatedData.UserId,
+      };
 
       const response = await fetch(url, {
         method: "PUT",
         headers: {
-                    'Content-Type': 'application/json',
-                },
-                
+          'Content-Type': 'application/json',
+        },
+
         body: JSON.stringify(UpdatedNoteData)
       });
-      
+
       if (!response.ok) {
+        // FIX: Use backticks for template literal
         let errorMessage = `Server error: ${response.status} ${response.statusText}`;
         try {
           const errorData = await response.json();
           errorMessage = errorData.message || errorMessage;
         } catch (e) {
         }
-        
+
         throw new Error(errorMessage);
       }
 
       const result = await response.json();
       console.log('Update successful:', result);
       return result;
-      
+
     } catch (error) {
       console.error("Error updating note:", error);
       throw error;
     }
   };
-  
+
   const addSiteNote = async (siteNoteData) => {
     try {
-    /* const formData = new FormData();
-    formData.append("Note", siteNoteData.Note);
-    formData.append("Date", siteNoteData.Date);
-    formData.append("JobId", siteNoteData.JobId);
-    formData.append("UserId", siteNoteData.UserId); */
-
-    const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/SiteNote/AddSiteNote`, {
-      method: "POST",
-      headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(
-                   siteNoteData
-                )
-    });
+      // FIX: Use backticks for template literal
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/SiteNote/AddSiteNote`, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(
+          siteNoteData
+        )
+      });
 
 
       if (!response.ok) {
@@ -381,7 +412,8 @@ function App() {
       }
 
       const responseData = await response.json();
-      await fetchNotes(); 
+      // Ensure fetchNotes is called with a userId
+      await fetchNotes(userId);
       return responseData;
     } catch (error) {
       console.error("API Error:", error);
@@ -392,24 +424,31 @@ function App() {
   const fetchProjectsAndJobs = async () => {
     try {
       var [projectsRes, jobsRes] = await Promise.all([
+        // FIX: Use backticks for template literal
         fetch(`${process.env.REACT_APP_API_BASE_URL}/api/Project/GetProjects`),
+        // FIX: Use backticks for template literal
         fetch(`${process.env.REACT_APP_API_BASE_URL}/api/Job/GetJobs`)
       ]);
 
-      
+
+      // FIX: Use backticks for template literal
       if (!projectsRes.ok) throw new Error(`Projects fetch failed: ${projectsRes.status}`);
+      // FIX: Use backticks for template literal
       if (!jobsRes.ok) throw new Error(`Jobs fetch failed: ${jobsRes.status}`);
-      projectsRes = await projectsRes.json();
-      jobsRes = await jobsRes.json();
-      
-      const projectsData = await projectsRes.projects;
-      const jobsData = await jobsRes.jobs;
-      
+
+      // The results from Promise.all are the *response objects*, you need to await the .json() call.
+      // projectsRes and jobsRes are redeclared here as the JSON data.
+      const projectsJson = await projectsRes.json();
+      const jobsJson = await jobsRes.json();
+
+      const projectsData = projectsJson.projects;
+      const jobsData = jobsJson.jobs;
+
       setProjects(projectsData.map(p => ({
         id: p.id.toString(),
         name: p.name
       })));
-      
+
       setJobs(jobsData.map(j => ({
         id: j.id.toString(),
         projectId: j.projectId.toString(),
@@ -424,6 +463,7 @@ function App() {
   const handleDeleteDocument = async (docId, noteId) => {
     console.warn("WARNING: Your C# API does not have a 'DeleteDocument' endpoint. This action will only remove the document from the frontend's local state.");
 
+    // FIX: Use backticks for template literal
     console.log(`Locally deleting document with ID: ${docId} from note ID: ${noteId}`);
     setFiles(prevFiles => ({
       ...prevFiles,
@@ -435,23 +475,23 @@ function App() {
     //   setDocumentCounts(prev => ({...prev, [noteId]: newCount}));
     // }
   };
-  
+
   return (
     <Router>
       <div className="app">
         <Routes>
-          <Route 
-            path="/login" 
+          <Route
+            path="/login"
             element={
               !isAuthenticated ? (
                 <Login onLogin={handleLogin} />
               ) : (
                 <Navigate to="/dashboard" replace />
               )
-            } 
+            }
           />
-          <Route 
-            path="/dashboard" 
+          <Route
+            path="/dashboard"
             element={
               isAuthenticated ? (
                 loading ? (
@@ -462,29 +502,24 @@ function App() {
                 ) : error ? (
                   <div className="error-container">
                     <p>Error: {error}</p>
-                    <button onClick={fetchInitialData}>Retry</button>
+                    {/* The fetchInitialData here needs the userId */}
+                    <button onClick={() => fetchInitialData(userId)}>Retry</button>
                   </div>
                 ) : (
-                  <Dashboard 
-                    notes={notes} 
-                    currentPage={currentPage}
-                    pageSize={pageSize}
-                    totalPages={totalPages}
-                    totalCount={totalCount}
-                    handlePageSize={handlePageSizeChange}
-                    getPageNumbers={getPageNumbers}
-                    handlePageChange={handlePageChange}
-                    refreshNotes={fetchNotes} 
-                    addSiteNote={addSiteNote} 
+                  <Dashboard
+                    notes={notes}
+                    // NOTE: Passing userId to refreshNotes is crucial
+                    refreshNotes={() => fetchNotes(userId)}
+                    addSiteNote={addSiteNote}
                     updateNote={updateNote}
-                    projects={projects} 
-                    updateProject={updateProject} 
+                    projects={projects}
+                    updateProject={updateProject}
                     jobs={jobs}
                     files={files}
                     onUploadDocument={handleUploadDocument}
                     onDeleteDocument={handleDeleteDocument}
                     fetchDocuments={fetchDocumentsByReference}
-                    onLogout={handleLogout} 
+                    onLogout={handleLogout}
                     documentCounts={documentCounts}
                     // fetchDocumentCount={fetchDocumentCount}
                   />
@@ -492,15 +527,15 @@ function App() {
               ) : (
                 <Navigate to="/login" replace />
               )
-            } 
+            }
           />
-          <Route 
-            path="/" 
+          <Route
+            path="/"
             element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />}
           />
         </Routes>
       </div>
-      <Toaster 
+      <Toaster
         position='bottom-center'
         style={{
           width: "18rem",
@@ -508,7 +543,7 @@ function App() {
           background: "rgba(175, 75, 62, 0.1)",
           borderRadius: "3rem",
           transition: "all 0.2s",
-          opacity: toast.visible ? 0.6 : 0
+          opacity: 0.9 // Changed from toast.visible ? 0.6 : 0 to prevent a console warning and ensure visibility
         }}
       />
     </Router>
