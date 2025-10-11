@@ -187,7 +187,7 @@ const WorkspaceManagement = ({onUpdateDefaultWorkspace}) => {
 
   const updateDefWorkspace = async () =>{
     onUpdateDefaultWorkspace(selectedWorkspace, workspaceName)
-    
+    setIsChangeWorkspaceOpen(false)
   }
 
   const handleOptionClick = (works) => {
