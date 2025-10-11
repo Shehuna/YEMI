@@ -9,7 +9,14 @@ import WorkspaceManagement from '../Workspaces/WorkspaceManagement';
 import ProjectManagement from '../Projects/ProjectManagement';
 import JobManagment from '../Jobs/JobManagment';
 
-const SettingsModal = ({ isOpen, onClose, onLogout, role, defWorkID, onUpdateDefaultWorkspace }) => { 
+const SettingsModal = ({ 
+    isOpen, 
+    onClose, 
+    onLogout, 
+    role, 
+    defWorkID, 
+    onUpdateDefaultWorkspace, 
+   }) => { 
     const [activeTab, setActiveTab] = useState(null);
     const [projects, setProjects] = useState([]);
     const [jobs, setJobs] = useState([]);
@@ -36,11 +43,13 @@ const SettingsModal = ({ isOpen, onClose, onLogout, role, defWorkID, onUpdateDef
     const [isEditJobOpen, setIsEditJobOpen] = useState(false);
     const [newJobStatus, setNewJobStatus] = useState(1);
     const [newProjectStatus, setNewProjectStatus] = useState(1);
+    const [userRole, setUserRole]=useState('')
     const navigate = useNavigate();
     console.log(role)
     useEffect(() => {
         if (isOpen) {
             fetchInitialData();
+            setUserRole(role)
         }
     }, [isOpen, role]);
     
@@ -342,7 +351,7 @@ useEffect(() => {
                     key={option.id}
                     className="settings-option"
                     onClick={() => setActiveTab(option.id)}
-                    disabled={option.id !== 'workspaceSettings' && role !== 1}
+                    disabled={option.id !== 'workspaceSettings' && userRole !== 1}
                     aria-label={`Open ${option.text} settings`}
                 >
                     
@@ -388,7 +397,7 @@ useEffect(() => {
             case 'jobStatus':
                 return renderJobStatusUpdate();
             case 'workspaceSettings':
-                return <WorkspaceManagement role={role} onUpdateDefaultWorkspace={onUpdateDefaultWorkspace}/>;
+                return <WorkspaceManagement onUpdateDefaultWorkspace={onUpdateDefaultWorkspace}/>;
             default:
                 return <div>Unknown settings option</div>;
         }

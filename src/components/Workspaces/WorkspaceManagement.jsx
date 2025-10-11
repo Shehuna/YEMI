@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Modal from '../Modals/Modal';
 import toast from 'react-hot-toast';
 
-const WorkspaceManagement = ({role, onUpdateDefaultWorkspace}) => {
+const WorkspaceManagement = ({onUpdateDefaultWorkspace}) => {
     
     const [workspaceName, setWorkspaceName] = useState('');
     const [ownerUserID, setOwnerUserID] = useState('');
@@ -26,6 +26,7 @@ const WorkspaceManagement = ({role, onUpdateDefaultWorkspace}) => {
 
     const [isAddWorkspaceOpen, setIsAddWorkspaceOpen] = useState(false);
     const [isEditWorkspaceOpen, setIsEditWorkspaceOpen] = useState(false);
+    const [isChangeWorkspaceOpen, setIsChangeWorkspaceOpen] = useState(false);
     const [selectedWorkspace, setSelectedWorkspace] = useState('');
     const [workspaces, setWorkspaces] = useState([]);
     
@@ -41,7 +42,7 @@ const WorkspaceManagement = ({role, onUpdateDefaultWorkspace}) => {
         }, []);
 
         useEffect(() => {
-                if (isEditWorkspaceOpen && selectedWorkspace) {
+                if (isChangeWorkspaceOpen && selectedWorkspace) {
                     const workspace = workspaces.find(w => w.id === parseInt(selectedWorkspace));
                     if (workspace) {
                         setWorkspaceName(workspace.name)
@@ -55,7 +56,7 @@ const WorkspaceManagement = ({role, onUpdateDefaultWorkspace}) => {
                 } else{
                     setWorkspaceName('')
                 }
-            }, [isEditWorkspaceOpen, selectedWorkspace, workspaces]);
+            }, [isChangeWorkspaceOpen, selectedWorkspace, workspaces]);
     
     
        const fetchWorkspaces = async (userid) => {
@@ -184,11 +185,13 @@ const WorkspaceManagement = ({role, onUpdateDefaultWorkspace}) => {
     }
   }
 
-  const updateDefWorkspace = () =>{
+  const updateDefWorkspace = async () =>{
     onUpdateDefaultWorkspace(selectedWorkspace, workspaceName)
+    
   }
 
   const handleOptionClick = (works) => {
+        console.log(works)
         setWorkspaceName(works.name)
         setOwnerType(works.ownerType)
         setOwnerName(works.ownerName)
@@ -207,7 +210,7 @@ const WorkspaceManagement = ({role, onUpdateDefaultWorkspace}) => {
             <button className="btn-secondary" onClick={() => setIsEditWorkspaceOpen(true)} disabled>
                 Edit Workspace
             </button>
-            <button className="btn-secondary" onClick={updateDefWorkspace} disabled={!selectedWorkspace}>
+            <button className="btn-secondary" onClick={() => setIsChangeWorkspaceOpen(true)} >
                 Select Workspace
             </button>
         </div>
@@ -382,6 +385,39 @@ const WorkspaceManagement = ({role, onUpdateDefaultWorkspace}) => {
                     </div>
                 </div>
     </Modal>
+
+        <Modal isOpen={isChangeWorkspaceOpen} onClose={() => setIsChangeWorkspaceOpen(false)} title="Change Workspace">
+            <div className="settings-form">
+                    <div className="settings-form">
+                            
+                            <div className="form-group">
+                                <label>Workspaces:</label>
+                                <select
+                                   value={selectedWorkspace}
+                                    onChange={(e) => setSelectedWorkspace(e.target.value)}
+                                >
+                                    <option value="">Select Workspaces</option>
+                                    {workspaces.map(workspace => (
+                                    <option onClick={()=>handleOptionClick(workspace)} key={workspace.id} value={workspace.id}>
+                                        {workspace.name}
+                                    </option>
+                ))}
+                                </select>
+                            </div>
+                            <div className="modal-footer">
+                            <button className="btn-primary" onClick={updateDefWorkspace} >
+                                Change
+                            </button>
+                            <button className="btn-close" onClick={()=>setIsChangeWorkspaceOpen(false)}>
+                                Cancel
+                            </button>
+                        </div>
+                           
+                        </div>
+                        
+                       
+                    </div>
+        </Modal>
     </div>
 
     

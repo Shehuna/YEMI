@@ -14,7 +14,7 @@ function App() {
   const [userDefaultWork, setUserDefaultWork] = useState('')
   const [isInWorkspace, setIsInWorkspace]= useState(false)
   const [userWorkspaceMaps, setUserWorkspaceMaps] = useState([])
-  
+  const [onRefresh, setOnRefresh] = useState(0);
 
   const [hasMore, setHasMore] = useState(true);
   const loadingRef = useRef(false);
@@ -109,10 +109,17 @@ function App() {
       loadingRef.current = false;
     }
   }
+  
+  /* 
+
+  const handleRefresh = () => {
+    setOnRefresh(prev => prev + 1);
+  }; */
 
   const updateDefaultWorkspace = (newDefId, newDefName) => {
     setDefaultWorkspace(newDefId)
     setUserDefaultWork(newDefName)
+   
   };
 
    const fetchDefaultWorkspace = async (defId) => {

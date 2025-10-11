@@ -9,6 +9,7 @@ import ViewNoteModal from './Modals/ViewNoteModal';
 
 const Dashboard = ({ 
   notes,
+  
   userid,
   refreshNotes, 
   addSiteNote, 
@@ -25,7 +26,7 @@ const Dashboard = ({
   defaultUserWorkspaceName,
   onUpdateDefaultWorkspace,
   onChange, 
-  placeholder = "Select an option" 
+  
 }) => {
   //const [notes, setNotes] = useState([]);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
@@ -245,19 +246,9 @@ const Dashboard = ({
   }; */
 
   useEffect(() => {
+    fetchUserWorkspaceRole()
     
-    fetchWorkspaceUserMapping()
-    
-    // const fetchAllDocumentCounts = async () => {
-    //   for (const note of notes) {
-    //     if (!documentCounts.hasOwnProperty(note.id) && !loadingCounts[note.id]) {
-    //       await fetchDocumentCount(note.id);
-    //     }
-    //   }
-    // };
-    
-    // fetchAllDocumentCounts();
-  }, [notes, documentCounts, loadingCounts]);
+  }, [defaultUserWorkspaceID]); 
 
   const filteredNotes = useMemo(() => {
     
@@ -376,9 +367,11 @@ const Dashboard = ({
     };
   }, [noteDocuments]);
 
-  const fetchWorkspaceUserMapping = async () => {
+
+  const fetchUserWorkspaceRole = async () => {
+    console.log(defaultUserWorkspaceID)
     try {
-      const response = await fetch(`${apiUrl}/UserWorkspace/GetUserWorkspaces`, {
+      const response = await fetch(`${apiUrl}/UserWorkspace/GetWorkspacesByUserId/${userid}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json; charset=utf-8",
@@ -387,32 +380,24 @@ const Dashboard = ({
   
       if (response.ok) {
         const data = await response.json();
-        setUserWorkspaces(data.userWorkspaces)
-        await checkRole(data.userWorkspaces)
+       
+        const userWorkspaces = await data.userWorkspaces
+        for(let i=0; i<userWorkspaces.length; i++){
+          if(userWorkspaces[i].workspaceID === defaultUserWorkspaceID){
+            console.log(userWorkspaces[i].role)
+            setRole(userWorkspaces[i].role)
+            
+          }
+        }
         //console.log(data.userWorkspaces)
-        fetchWorkspaceByUserId(data.userWorkspaces)
-        
-        return
+        //fetchWorkspaceByUserId(data.userWorkspaces)
       }
     } catch (error) {
       console.error("Error fetching notes:", error);
     }
-    finally {
-      setLoading(false);
-    }
   }
 
-  const checkRole = async(userWorkspaces) =>{
-    
-    for (let i = 0; i < userWorkspaces.length; i++) {
-            if(userWorkspaces[i].userID === userid && userWorkspaces[i].workspaceID === defaultUserWorkspaceID){
-              
-              setRole(userWorkspaces[i].role)
-        }
-    }
-  }
-
-  const fetchWorkspaceByUserId = async (workspaces) => {
+ const fetchWorkspaceByUserId = async (workspaces) => {
     console.log(workspaces)
     for (let i = 0; i < workspaces.length; i++) {
             if(workspaces[i].userID === userid){
@@ -980,6 +965,7 @@ const Dashboard = ({
           defWorkID={defaultUserWorkspaceID}
           role={role}
           onUpdateDefaultWorkspace={onUpdateDefaultWorkspace}
+          
         />
       )}
 
