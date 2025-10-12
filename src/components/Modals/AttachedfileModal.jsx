@@ -32,8 +32,6 @@ const AttachedFileModal = ({
   const [preview, setPreview] = useState('');
   const fileInputRef = useRef(null);
 
-
-   // Allowed file types
   const allowedFileTypes = {
     // Images
     'image/jpeg': ['.jpg', '.jpeg'],
