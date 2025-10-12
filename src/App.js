@@ -9,7 +9,7 @@ function App() {
   const [notes, setNotes] = useState([]);
   const [userId, setUserId]= useState(0)
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(25);
+  const [pageSize, setPageSize] = useState(50);
   const [defaultWorkspace, setDefaultWorkspace] = useState('')
   const [userDefaultWork, setUserDefaultWork] = useState('')
   const [isInWorkspace, setIsInWorkspace]= useState(false)
