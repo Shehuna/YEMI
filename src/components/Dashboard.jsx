@@ -385,14 +385,13 @@ const Dashboard = ({
        if (response.ok) {
         const data = await response.json();
         const userWorkspaces = data.userWorkspaces || [];
-        console.log(defaultUserWorkspaceID)
-        console.log(userWorkspaces)
+        
         const workspace = userWorkspaces.find(res => res.workspaceID == defaultUserWorkspaceID);
-        console.log(workspace)
+       
         const newRole = workspace?.role || null;
         
         setRole(newRole);
-        console.log('✅ New role set:', newRole);
+        
       }
     } catch (error) {
       console.error("Error:", error);
@@ -451,22 +450,14 @@ const Dashboard = ({
 };
 
 const handleOpenSettings = () => {
-    console.log('🎯 Opening settings, current role:', role);
-    
+        
     if (isRoleLoading) {
-      console.log('⏳ Role still loading, please wait...');
+     
       return;
     }
-    
-    if (!role) {
-      console.log('❌ Cannot open settings: no role available');
-      // Optionally show a message to user
-      alert('No role assigned for this workspace');
-      return;
-    }
-    
+       
     setShowSettingsModal(true);
-    console.log('✅ Modal opened successfully');
+    
   };
 
   const handleViewAttachments = async (note) => {
@@ -983,7 +974,7 @@ const handleOpenSettings = () => {
 
       
 
-      {(showSettingsModal && role!==null )&&(
+      {showSettingsModal&&(
         
         <SettingsModal 
           //key={role}
