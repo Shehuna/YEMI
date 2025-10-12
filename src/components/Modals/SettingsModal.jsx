@@ -37,19 +37,19 @@ const SettingsModal = ({
     const [newProjectName, setNewProjectName] = useState('');
     const [newJobName, setNewJobName] = useState('');
 
-    const [isAddProjectOpen, setIsAddProjectOpen] = useState(false);
+    
     const [isEditProjectOpen, setIsEditProjectOpen] = useState(false);
-    const [isAddJobOpen, setIsAddJobOpen] = useState(false);
+   
     const [isEditJobOpen, setIsEditJobOpen] = useState(false);
     const [newJobStatus, setNewJobStatus] = useState(1);
     const [newProjectStatus, setNewProjectStatus] = useState(1);
-    const [userRole, setUserRole]=useState('')
-    const navigate = useNavigate();
     console.log(role)
+    const navigate = useNavigate();
+    
     useEffect(() => {
         if (isOpen) {
             fetchInitialData();
-            setUserRole(role)
+            
         }
     }, [isOpen, role]);
     
@@ -351,7 +351,7 @@ useEffect(() => {
                     key={option.id}
                     className="settings-option"
                     onClick={() => setActiveTab(option.id)}
-                    disabled={option.id !== 'workspaceSettings' && userRole !== 1}
+                    disabled={option.id !== 'workspaceSettings' && role !== 1}
                     aria-label={`Open ${option.text} settings`}
                 >
                     

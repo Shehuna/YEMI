@@ -9,7 +9,6 @@ import ViewNoteModal from './Modals/ViewNoteModal';
 
 const Dashboard = ({ 
   notes,
-  
   userid,
   refreshNotes, 
   addSiteNote, 
@@ -54,7 +53,8 @@ const Dashboard = ({
   const [defaultWorkspace, setDefaultWorkspace] = useState(null)
   const [isDropDownOpen, setIsDropDownOpen] = useState(false)
   const [userWorkspaces, setUserWorkspaces] = useState([])
-  const [role, setRole] = useState('')
+  const [role, setRole] = useState(null)
+  const [isRoleLoading, setIsRoleLoading] = useState(false);
   
 
   const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/api`;
@@ -246,9 +246,11 @@ const Dashboard = ({
   }; */
 
   useEffect(() => {
-    fetchUserWorkspaceRole()
-    
-  }, [defaultUserWorkspaceID]); 
+    if(userid && defaultUserWorkspaceID){
+        fetchUserWorkspaceRole();
+    }
+      
+  }, [userid, defaultUserWorkspaceID]); 
 
   const filteredNotes = useMemo(() => {
     
@@ -369,8 +371,10 @@ const Dashboard = ({
 
 
   const fetchUserWorkspaceRole = async () => {
-    console.log(defaultUserWorkspaceID)
+    setIsRoleLoading(true);
+    console.log('fetching')
     try {
+      console.log('fetching')
       const response = await fetch(`${apiUrl}/UserWorkspace/GetWorkspacesByUserId/${userid}`, {
         method: "GET",
         headers: {
@@ -378,22 +382,23 @@ const Dashboard = ({
         }
       });
   
-      if (response.ok) {
+       if (response.ok) {
         const data = await response.json();
-       
-        const userWorkspaces = await data.userWorkspaces
-        for(let i=0; i<userWorkspaces.length; i++){
-          if(userWorkspaces[i].workspaceID === defaultUserWorkspaceID){
-            console.log(userWorkspaces[i].role)
-            setRole(userWorkspaces[i].role)
-            
-          }
-        }
-        //console.log(data.userWorkspaces)
-        //fetchWorkspaceByUserId(data.userWorkspaces)
+        const userWorkspaces = data.userWorkspaces || [];
+        console.log(defaultUserWorkspaceID)
+        console.log(userWorkspaces)
+        const workspace = userWorkspaces.find(res => res.workspaceID == defaultUserWorkspaceID);
+        console.log(workspace)
+        const newRole = workspace?.role || null;
+        
+        setRole(newRole);
+        console.log('✅ New role set:', newRole);
       }
     } catch (error) {
-      console.error("Error fetching notes:", error);
+      console.error("Error:", error);
+      setRole(null);
+    } finally {
+      setIsRoleLoading(false);
     }
   }
 
@@ -444,6 +449,25 @@ const Dashboard = ({
   
   setShowNewModal(true);
 };
+
+const handleOpenSettings = () => {
+    console.log('🎯 Opening settings, current role:', role);
+    
+    if (isRoleLoading) {
+      console.log('⏳ Role still loading, please wait...');
+      return;
+    }
+    
+    if (!role) {
+      console.log('❌ Cannot open settings: no role available');
+      // Optionally show a message to user
+      alert('No role assigned for this workspace');
+      return;
+    }
+    
+    setShowSettingsModal(true);
+    console.log('✅ Modal opened successfully');
+  };
 
   const handleViewAttachments = async (note) => {
     try {
@@ -722,7 +746,7 @@ const Dashboard = ({
            <div>
               <p className="dropdown-container">{defaultUserWorkspaceName}</p>
               <button 
-            onClick={() => setShowSettingsModal(true)}
+            onClick={handleOpenSettings}
             style={{
               background: 'rgba(52, 152, 219, 0.1)',
               border: '1px solid rgba(52, 152, 219, 0.2)',
@@ -957,8 +981,12 @@ const Dashboard = ({
        
       </div>
 
-      {showSettingsModal && (
+      
+
+      {(showSettingsModal && role!==null )&&(
+        
         <SettingsModal 
+          //key={role}
           isOpen={showSettingsModal}
           onClose={() => setShowSettingsModal(false)} 
           onLogout={onLogout}

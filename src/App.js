@@ -98,6 +98,7 @@ function App() {
         console.log(data)
         setDefaultWorkspace(data.user.defaultWorkspaceId)
         fetchDefaultWorkspace(data.user.defaultWorkspaceId)
+        
         setLoading(false);  
         return;
       }
@@ -323,6 +324,31 @@ function App() {
     setDocumentCounts(counts);
   };
 
+  const fetchUserWorkspaceRole = async () => {
+    setLoading(true)
+    console.log('fetching')
+    try {
+      console.log('fetching')
+      const response = await fetch(`${apiUrl}/UserWorkspace/GetWorkspacesByUserId/${userId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+        }
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        setUserWorkspaceMaps(await data.userWorkspaces)        
+        setLoading(false);
+        //console.log(data.userWorkspaces)
+        //fetchWorkspaceByUserId(data.userWorkspaces)
+      }
+    } catch (error) {
+      console.error("Error fetching notes:", error);
+    }finally{
+      setLoading(false);
+    }
+  }
   
   const fetchDocumentsByReference = async (noteId) => {
     try {
