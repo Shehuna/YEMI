@@ -452,12 +452,9 @@ const Dashboard = ({
 const handleOpenSettings = () => {
         
     if (isRoleLoading) {
-     
       return;
     }
-       
     setShowSettingsModal(true);
-    
   };
 
   const handleViewAttachments = async (note) => {

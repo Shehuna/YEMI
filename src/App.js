@@ -31,10 +31,10 @@ function App() {
 
    useEffect(() => {
         initializeUser();
-        //fetchNotes(userId)
     }, []);
 
-  const fetchNotes = useCallback(async () => {
+  const fetchNotes = async () => {
+    console.log("fetsching...")
     if (loadingRef.current) return;
     
     loadingRef.current = true;
@@ -79,9 +79,7 @@ function App() {
       setLoading(false);
       loadingRef.current = false;
     }
-  })
-  
-  
+  }
   
 
   const getUser = async (userid) => {
@@ -279,7 +277,7 @@ function App() {
   const loadMore = async () => {
     if (loading || !hasMore) return;
     setLoading(true);
-    const newData = await fetchNotes(userId);
+    const newData = await fetchNotes();
     const safeData = Array.isArray(newData) ? newData : [];
     if (safeData.length === 0 || safeData.length < pageSize) {
       setHasMore(false);
@@ -406,7 +404,7 @@ function App() {
 
         const result = await response.json(); 
         console.log('Document uploaded successfully:', result.message);
-        fetchNotes(userId)
+        fetchNotes()
         // if (siteNoteId) {
         //   const newCount = await fetchDocumentCount(siteNoteId);
         //   setDocumentCounts(prev => ({...prev, [siteNoteId]: newCount}));
@@ -540,7 +538,7 @@ function App() {
 
       const result = await response.json();
       console.log('Update successful:', result);
-      fetchNotes(userId)
+      await fetchNotes()
       return result;
       
     } catch (error) {
@@ -574,7 +572,7 @@ function App() {
       }
 
       const responseData = await response.json();
-      await fetchNotes(userId); 
+      await fetchNotes(); 
       return responseData;
     } catch (error) {
       console.error("API Error:", error);
