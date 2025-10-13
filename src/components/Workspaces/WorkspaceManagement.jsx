@@ -188,6 +188,26 @@ const WorkspaceManagement = ({onUpdateDefaultWorkspace}) => {
   const updateDefWorkspace = async () =>{
     onUpdateDefaultWorkspace(selectedWorkspace, workspaceName)
     setIsChangeWorkspaceOpen(false)
+    await updateUserDefaultWorkspace()
+  }
+
+  const updateUserDefaultWorkspace = async () =>{
+    try {
+        const response = await fetch(`${API_URL}/api/UserManagement/UpdateDefaultWorkspaceByUserId/${ownerUserID}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                defaultWorkspaceId: selectedWorkspace
+            }),
+        
+            });
+
+        if (!response.ok) throw new Error('Failed to add workspace');
+        else toast.success('default workspace is successfully updated')
+    } catch (err) {
+        setError(err.message);
+        console.error('Error adding workspace:', err);
+    }
   }
 
   const handleOptionClick = (works) => {
