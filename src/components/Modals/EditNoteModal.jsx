@@ -24,6 +24,48 @@ const EditNoteModal = ({ note, onClose, refreshNotes, updateNote, uploadDocument
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [isLoadingDocuments, setIsLoadingDocuments] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  const allowedFileTypes = {
+    // Images
+    'image/jpeg': ['.jpg', '.jpeg'],
+    'image/png': ['.png'],
+    'image/gif': ['.gif'],
+    'image/webp': ['.webp'],
+    'image/svg+xml': ['.svg'],
+    
+    // Documents
+    'application/pdf': ['.pdf'],
+    'application/msword': ['.doc'],
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+    'application/vnd.ms-excel': ['.xls'],
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+    'application/vnd.ms-powerpoint': ['.ppt'],
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation': ['.pptx'],
+    'text/plain': ['.txt'],
+    
+    // Audio
+    'audio/mpeg': ['.mp3'],
+    'audio/wav': ['.wav'],
+    'audio/ogg': ['.ogg'],
+    'audio/aac': ['.aac'],
+    
+    // Video
+    'video/mp4': ['.mp4'],
+    'video/mpeg': ['.mpeg'],
+    'video/ogg': ['.ogv'],
+    'video/webm': ['.webm'],
+    'video/quicktime': ['.mov'],
+    'video/x-msvideo': ['.avi']
+  };
+
+  const MAX_FILE_SIZE = 5 * 1024 * 1024;
+  const isValidFileType = (file) => {
+    return Object.keys(allowedFileTypes).includes(file.type);
+  };
+  const isValidFileSize = (file) => {
+    return file.size <= MAX_FILE_SIZE;
+  };
 
   useEffect(() => {
     if (note) {
@@ -163,6 +205,19 @@ const EditNoteModal = ({ note, onClose, refreshNotes, updateNote, uploadDocument
 
   const handleDocumentFileChange = (e) => {
     if (!isEditable) return;
+    const file = e.target.files[0];
+    setError('');
+    if (!isValidFileType(file)) {
+      setError('Invalid file type! ');
+      setSelectedFile(null);
+      return;
+    }
+
+    if (!isValidFileSize(file)) {
+      setError(`File size too large. Maximum allowed size is 5MB.`);
+      setSelectedFile(null);
+      return;
+    }
     setNewDocument(prev => ({ ...prev, file: e.target.files[0] }));
   };
 

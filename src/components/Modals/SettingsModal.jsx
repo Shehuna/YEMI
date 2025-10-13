@@ -8,6 +8,7 @@ import UserManagement from '../Users/UserManagement';
 import WorkspaceManagement from '../Workspaces/WorkspaceManagement';
 import ProjectManagement from '../Projects/ProjectManagement';
 import JobManagment from '../Jobs/JobManagment';
+import JobPermissionManagement from '../JobPermission/JobPermissionManagement';
 
 const SettingsModal = ({ 
     isOpen, 
@@ -36,7 +37,6 @@ const SettingsModal = ({
     const [selectedStatus, setSelectedStatus] = useState(1);
     const [newProjectName, setNewProjectName] = useState('');
     const [newJobName, setNewJobName] = useState('');
-
     
     const [isEditProjectOpen, setIsEditProjectOpen] = useState(false);
    
@@ -49,7 +49,6 @@ const SettingsModal = ({
     useEffect(() => {
         if (isOpen) {
             fetchInitialData();
-            
         }
     }, [isOpen, role]);
     
@@ -167,9 +166,6 @@ useEffect(() => {
         }
     };
 
-    
-
-    
 
     const handleAddUser = () => {
         alert(`User ${selectedUser} added to database ${selectedDatabase}`);
@@ -182,85 +178,16 @@ useEffect(() => {
         setSelectedUser('');
         setSelectedDatabase('');
     };
-
-    const handleGrantPermission = () => {
-        alert(`Permission granted to user ${selectedUser} for job ${selectedJob}`);
-        setSelectedUser('');
-        setSelectedProject('');
-        setSelectedJob('');
-    };
-
-    const handleDenyPermission = () => {
-        alert(`Permission denied to user ${selectedUser} for job ${selectedJob}`);
-        setSelectedUser('');
-        setSelectedProject('');
-        setSelectedJob('');
-    };
-
+   
     const handleUpdateStatus = () => {
         alert(`Job ${selectedJob} status updated to ${selectedStatus}`);
         setSelectedProject('');
         setSelectedJob('');
         setSelectedStatus(1);
     };
+    
 
-
-  const renderJobPermissions = () => (
-        <div className="settings-content">
-            <div className="settings-form">
-                <div className="form-group">
-                    <label>Username:</label>
-                    <select
-                        value={selectedUser}
-                        onChange={(e) => setSelectedUser(e.target.value)}
-                    >
-                        <option value="">Select User</option>
-                        {users.map(user => (
-                            <option key={user.id} value={user.id}>{user.userName}</option>
-                        ))}
-                    </select>
-                </div>
-
-                <div className="form-group">
-                    <label>Project:</label>
-                    <select
-                        value={selectedProject}
-                        onChange={(e) => setSelectedProject(e.target.value)}
-                    >
-                        <option value="">Select Project</option>
-                        {projects.map(project => (
-                            <option key={project.id} value={project.id}>{project.name}</option>
-                        ))}
-                    </select>
-                </div>
-
-                <div className="form-group">
-                    <label>Job:</label>
-                    <select
-                        value={selectedJob}
-                        onChange={(e) => setSelectedJob(e.target.value)}
-                        disabled={!selectedProject}
-                    >
-                        <option value="">Select Job</option>
-                        {jobs.filter(job => job.projectId === parseInt(selectedProject)).map(job => (
-                            <option key={job.id} value={job.id}>{job.name}</option>
-                        ))}
-                    </select>
-                </div>
-            </div>
-
-            <div className="settings-action-buttons">
-                <button className="btn-primary" onClick={handleGrantPermission} disabled={!selectedUser || !selectedProject || !selectedJob}>
-                    Grant
-                </button>
-                <button className="btn-danger" onClick={handleDenyPermission} disabled={!selectedUser || !selectedProject || !selectedJob}>
-                    Deny
-                </button>
-            </div>
-        </div>
-    );
-
-    const renderJobStatusUpdate = () => (
+  const renderJobStatusUpdate = () => (
         <div className="settings-content">
             <div className="settings-form">
                 <div className="form-group">
@@ -393,7 +320,7 @@ useEffect(() => {
             case 'userManagement':
                 return <UserManagement />;
             case 'jobPermissions':
-                return renderJobPermissions();
+                return <JobPermissionManagement />;
             case 'jobStatus':
                 return renderJobStatusUpdate();
             case 'workspaceSettings':

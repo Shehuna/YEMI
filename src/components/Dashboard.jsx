@@ -457,37 +457,13 @@ const handleOpenSettings = () => {
     setShowSettingsModal(true);
   };
 
-  const handleViewAttachments = async (note) => {
-    try {
-      console.log("Starting document fetch for note:", note.id);
-      
-      setSelectedFileNote(note);
-      setShowAttachedFileModal(true);
-  
-      const response = await fetch(
-          `${process.env.REACT_APP_API_BASE_URL}/api/Documents?reference=${note.id}`
-      );
-  
-      console.log("Response status:", response.status);
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Server responded with ${response.status}: ${errorText}`);
-      }
-
-      const documents = await response.json().documents || [];
-      console.log("Received documents:", documents);
-
-      setNoteDocuments(prev => ({
-        ...prev,
-        [note.id]: documents
-      }));
-
-    } catch (error) {
-      console.error("Document load failed:", error);
-      setError(`Failed to load documents: ${error.message}`);
-    }
-  };
+  const handleViewAttachments = useCallback(async (note) => {
+     setShowViewModal(false);
+     setSelectedFileNote(note); 
+     setShowAttachedFileModal(true);
+     
+     loadDocuments(note.id);
+ }, [loadDocuments]);
 
   const handleUploadDocumentWrapper = async (documentName, file, noteId) => { 
     try {
@@ -986,16 +962,17 @@ const handleOpenSettings = () => {
       )}
 
       {showViewModal && viewNote && (
-        <ViewNoteModal
-          noteId={viewNote.id}
-          onClose={() => {
-            setShowViewModal(false);
-            setViewNote(null);
-          }}
-          documents={filteredNotes} 
-          currentTheme={currentTheme}
-        />
-      )}
+              <ViewNoteModal
+                noteId={viewNote.id}
+                onClose={() => {
+                  setShowViewModal(false);
+                  setViewNote(null);
+                }}
+                documents={filteredNotes} 
+                currentTheme={currentTheme}
+                onViewAttachments={handleViewAttachments}
+              />
+            )}
   
       {showNewModal && (
         <NewNoteModal
