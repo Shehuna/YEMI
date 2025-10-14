@@ -4,6 +4,7 @@ import Login from './components/Login';
 import Dashboard from "./components/Dashboard";
 import toast, { Toaster } from 'react-hot-toast';
 import "./App.css";
+import UserManagement from "./components/Users/UserManagement";
 
 function App() {
   const [notes, setNotes] = useState([]);
@@ -682,6 +683,10 @@ function App() {
                 <Navigate to="/login" replace />
               )
             } 
+          />
+          <Route
+            path="/users/user-management"
+            element={<UserManagement />}
           />
           <Route 
             path="/" 
