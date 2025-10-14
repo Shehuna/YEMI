@@ -1,9 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast';
 import Modal from '../Modals/Modal';
+import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/images/avatar.png';
+const useQuery = () => {
+    return new URLSearchParams(window.location.search);
+};
 
 const UserManagement = () => {
+    const navigate = useNavigate();
+    const query = useQuery();
+    const initialAddUserState = query.get('action') === 'create';
      const [isAddUserOpen, setIsAddUserOpen] = useState(false);
      const [isEditUserOpen, setIsEditUserOpen] = useState(false);
      const [isChangeUserPassOpen, setIsChangeUserPassOpen] = useState(false);
@@ -32,6 +39,11 @@ const UserManagement = () => {
      useEffect(() => {
          fetchUsers();
     }, []);
+    useEffect(() => {
+    if (initialAddUserState) {
+        setIsAddUserOpen(true);
+    }
+}, [initialAddUserState]);
 
     useEffect(() => {
             if ((isEditUserOpen || isChangeUserStatusOpen) && selectedUser) {
@@ -284,6 +296,18 @@ const UserManagement = () => {
         return !hasErrors && mandatoryFieldsFilled;
     }
 
+   const closeAddUserModal = () => {
+    setIsAddUserOpen(false);
+    setErrors({});
+
+    if (query.get('action') === 'create') {
+        window.history.replaceState(null, '', window.location.pathname);
+    }
+};
+
+    const handleSignUpRedirect = () => {
+  navigate('/users/user-management?action=create');
+};
 
     return (
         <div className="settings-content">
@@ -324,10 +348,7 @@ const UserManagement = () => {
                 
                 <Modal
                     isOpen={isAddUserOpen}
-                    onClose={() => {
-                        setIsAddUserOpen(false);
-                        setErrors({}); 
-                    }}
+                    onClose={closeAddUserModal} 
                     title="Add User"
                 >
                     <div className="settings-content">
@@ -406,16 +427,7 @@ const UserManagement = () => {
                         />
                         </div>
                     </div>
-                <div className="form-group">
-                 <label>Profile Picture:</label>
-                 <input
-                    type="file"
-                    name="profilePicturePath"
-                    onChange={handleInputChange}
-                    placeholder="Password"
-                    required
-                   />
-                      </div>
+                
                  </div>
 
                     <div className="settings-action-buttons">

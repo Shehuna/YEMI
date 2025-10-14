@@ -4,6 +4,7 @@ import Login from './components/Login';
 import Dashboard from "./components/Dashboard";
 import toast, { Toaster } from 'react-hot-toast';
 import "./App.css";
+import UserManagement from './components/Users/UserManagement';
 
 function App() {
   const [notes, setNotes] = useState([]);
@@ -18,7 +19,7 @@ function App() {
   const [files, setFiles] = useState({});
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [documentCounts, setDocumentCounts] = useState({});
-  // FIX: Use backticks for template literal
+ 
   const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/api/SiteNote`;
 
   useEffect(() => {
@@ -27,8 +28,6 @@ function App() {
 
   useEffect(() => {
     if (userId) {
-      // NOTE: We only want to fetch initial data on component mount (after userId is set).
-      // We explicitly pass the ID here, which is better than relying on state in the async function.
       fetchInitialData(userId);
     }
   }, [userId]);
@@ -39,7 +38,6 @@ function App() {
       if (userStr) {
         const user = JSON.parse(userStr);
         console.log("User from localStorage:", user);
-        // Ensure user.id exists before parsing and setting
         if (user.id) {
           setUserId(parseInt(user.id));
           setIsAuthenticated(true);
@@ -53,7 +51,10 @@ function App() {
   };
 
   const handleLogin = (user) => {
-    // Re-initialize user state after a successful login (which should update localStorage)
+    if (user && user.id) {
+      setUserId(parseInt(user.id));
+      setIsAuthenticated(true);
+    }
     initializeUser()
   };
 
@@ -61,7 +62,7 @@ function App() {
   const handleLogout = () => {
     localStorage.removeItem('user');
     localStorage.removeItem('userToken');
-    setUserId(0); // Reset userId on logout
+    setUserId(0); 
     setIsAuthenticated(false);
   };
 
@@ -70,13 +71,11 @@ function App() {
     setLoading(true);
     setError(null);
     try {
-      // Pass the userId to fetchNotes, as it expects it
       await Promise.all([fetchNotes(id), fetchProjectsAndJobs()]);
     } catch (err) {
       setError(err.message);
       console.error("Initial data loading error:", err);
     } finally {
-      // setLoading(false); // Removed here as it's set in fetchNotes upon success
     }
   };
 
@@ -155,9 +154,8 @@ function App() {
   };
 
   const fetchNotes = async (userid) => {
-    setLoading(true); // Ensure loading is true while fetching
+    setLoading(true); 
     try {
-      // FIX: Use backticks for template literal
       const response = await fetch(`${apiUrl}/GetSiteNotes?pageNumber=1&pageSize=50&userId=${userid}`, {
         method: "GET",
         headers: {
@@ -168,13 +166,11 @@ function App() {
       const text = await response.text();
 
       if (response.ok) {
-        // console.log() // This line does nothing, can be removed
         const data = JSON.parse(text);
         console.log(data)
-        setNotes(data.siteNotes || []); // Use empty array if siteNotes is null/undefined
+        setNotes(data.siteNotes || []); 
         // fetchAllDocumentCounts(data);
       } else {
-        // FIX: Use backticks for template literal
         console.error(`Failed to fetch: ${response.status}`);
         throw new Error(`Failed to fetch notes: ${response.status}`);
       }
@@ -191,7 +187,6 @@ function App() {
   const fetchDocumentsByReference = async (noteId) => {
     try {
       const response = await fetch(
-        // FIX: Use backticks for template literal
         `${process.env.REACT_APP_API_BASE_URL}/api/Documents/?siteNoteId=${noteId}`,
         {
           headers: {
@@ -202,7 +197,6 @@ function App() {
       );
 
       if (!response.ok) {
-        // FIX: Use backticks for template literal
         throw new Error(`Failed to fetch documents: ${response.status}`);
       }
 
@@ -529,11 +523,17 @@ function App() {
               )
             }
           />
+         <Route
+            path="/users/user-management"
+            element={<UserManagement />}
+          />
           <Route
             path="/"
             element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />}
           />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        
       </div>
       <Toaster
         position='bottom-center'

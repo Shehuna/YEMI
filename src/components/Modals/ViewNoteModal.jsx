@@ -98,6 +98,7 @@ const ViewNoteModal = ({ noteId, onClose, documents = [], currentTheme, onViewAt
                     onClick={() => onViewAttachments(doc)} 
                     title={`View ${doc.documentCount} attached file(s)`}
                 >
+                     <span className="document-count-badge">{doc.documentCount}</span>
                     <i className="fas fa-paperclip"></i>
                 </button>
             </div>
