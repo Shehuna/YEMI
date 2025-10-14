@@ -912,6 +912,7 @@ const Dashboard = ({
           }}
           documents={filteredNotes} 
           currentTheme={currentTheme}
+          onViewAttachments={handleViewAttachments}
         />
       )}
   
