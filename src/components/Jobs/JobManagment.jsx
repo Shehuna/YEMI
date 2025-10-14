@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Modal from '../Modals/Modal';
 import toast from 'react-hot-toast';
 
-const JobManagment = () => {
+const JobManagment = ({defWorkId}) => {
     const [selectedJob, setSelectedJob] = useState('');
     const [newJobName, setNewJobName] = useState('');
     const [user, setUser] = useState('');
@@ -208,7 +208,7 @@ const JobManagment = () => {
                 >
                     {jobs
                         .filter(job => {
-                            const project = projects.find(p => p.id === job.projectId);
+                            const project = projects.find(p => (p.id === job.projectId && p.workspaceId === defWorkId));
                             return project && project.status === 1; // Only include jobs from active projects
                         })
                         .map(job => {
@@ -247,7 +247,7 @@ const JobManagment = () => {
                         >
                             <option value="">Select Project</option>
                             {projects
-                                .filter(project => project.status === 1) // Only show active projects
+                                .filter(project => (project.status === 1 && project.workspaceId === defWorkId)) // Only show active projects
                                 .map(project => (
                                     <option key={project.id} value={project.id}>{project.name}</option>
                                 ))}

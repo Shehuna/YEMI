@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast';
 
-const JobPermissionManagement = ({userid}) => {
+const JobPermissionManagement = ({defId}) => {
     const [selectedUser, setSelectedUser] = useState('');
     const [selectedProject, setSelectedProject] = useState('');
     const [selectedJob, setSelectedJob] = useState('');
@@ -136,7 +136,8 @@ const JobPermissionManagement = ({userid}) => {
                         onChange={(e) => setSelectedProject(e.target.value)}
                     >
                         <option value="">Select Project</option>
-                        {projects.map(project => (
+                        {projects.filter(project => (project.status === 1 && project.workspaceId === defId)).
+                            map(project => (
                             <option key={project.id} value={project.id}>{project.name}</option>
                         ))}
                     </select>

@@ -316,11 +316,11 @@ useEffect(() => {
             case 'projectManagement':
                 return <ProjectManagement workspaceId={defWorkID}/>;
             case 'jobManagement':
-                return <JobManagment />;
+                return <JobManagment defWorkId={defWorkID}/>;
             case 'userManagement':
                 return <UserManagement />;
             case 'jobPermissions':
-                return <JobPermissionManagement />;
+                return <JobPermissionManagement defId={defWorkID} />;
             case 'jobStatus':
                 return renderJobStatusUpdate();
             case 'workspaceSettings':
