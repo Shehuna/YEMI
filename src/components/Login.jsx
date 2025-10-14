@@ -11,12 +11,15 @@ const Login = ({ onLogin }) => {
 
   const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/api/UserManagement/Login`;
 
-
   const handleLogin = async (e) => {
     e.preventDefault();
     setError(null);
     setIsLoading(true);
-
+ if (!username.trim() || !password.trim()) {
+    setError('Please enter both username and password');
+    setIsLoading(false);
+    return;
+  }
     try {
       const response = await fetch(apiUrl, {
         method: 'POST',
@@ -40,10 +43,18 @@ const Login = ({ onLogin }) => {
         throw new Error(data.message || 'Login failed. Please check your username/password.');
       }
     } catch (err) {
-      setError('Login failed. Please check your username/password.');
+      console.error('Login error:', err);
+      setError(err.message || 'An unexpected error occurred. Please try again later.');
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSignUpRedirect = (e) => {
+    e.preventDefault(); 
+    e.stopPropagation(); 
+    console.log('Redirecting to user management...');
+    navigate('/users/user-management?action=create');
   };
 
   const handleCancel = () => {
@@ -66,6 +77,7 @@ const Login = ({ onLogin }) => {
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Enter username"
               disabled={isLoading}
+              required
             />
           </div>
           <div className="input-group">
@@ -77,7 +89,19 @@ const Login = ({ onLogin }) => {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter password"
               disabled={isLoading}
+              required
             />
+          </div>
+          <div className="signup-link-group">
+            <span className="signup-text">Don't have an account?</span>
+            <button 
+              type="button"
+              className="signup-btn"
+              onClick={handleSignUpRedirect}
+              disabled={isLoading}
+            >
+               Sign up
+            </button>
           </div>
           {error && <div className="error-message">{error}</div>}
           <div className="button-group">

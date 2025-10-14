@@ -157,14 +157,17 @@
 }
 
 .message.received {
-  background-color: var(--message-received-bg-color);
-  align-self: flex-start;
-  margin-right: auto;
-  color: var(--text-color);
+    background-color: var(--message-received-bg-color);
+    align-self: flex-start; 
+    color: var(--text-color);
+    flex-grow: 1; 
+    margin-right: 4px !important; 
+    margin-left: 0 !important;
+    max-width: 80%;
 }
 
 .message.received.selected {
-  border: 2px solid #34b7f1; /* Highlight border for the selected note */
+  border: 2px solid #34b7f1; 
 }
 
 .message-header {
@@ -259,4 +262,43 @@
   gap: 8px;
   font-size: 14px;
   font-weight: bold;
+}
+.whatsapp-chat .message-row {
+    display: flex;
+    justify-content: flex-start; 
+    flex-direction: row; 
+    align-items: flex-end; 
+    margin-bottom: 8px; 
+    width: 100%; 
+}
+
+.message.received {
+    align-self: flex-start; 
+    margin-right: 4px !important; 
+    margin-left: 0 !important;
+}
+
+.whatsapp-chat .paperclip-container {
+    display: flex;
+    align-items: flex-end; 
+    padding: 0 4px;
+    height: auto;
+    flex-shrink: 0; 
+}
+
+.whatsapp-chat .paperclip-button {
+    background: none;
+    border: none;
+    color: var(--secondary-text-color); 
+    cursor: pointer;
+    padding: 5px;
+    font-size: 14px;
+    opacity: 0.8;
+    transition: opacity 0.2s, color 0.2s;
+    line-height: 1;
+}
+
+.whatsapp-chat .paperclip-button:hover {
+    opacity: 1;
+    color: #34b7f1; 
 }

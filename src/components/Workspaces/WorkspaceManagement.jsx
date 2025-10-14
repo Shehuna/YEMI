@@ -32,6 +32,20 @@ const WorkspaceManagement = ({onUpdateDefaultWorkspace}) => {
     
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
+    const COUNTRY_OPTIONS = [
+    "United States",
+    "Canada",
+    "United Kingdom",
+    "Australia",
+    "Germany",
+    "France",
+    "Japan",
+    "Brazil",
+    "India",
+    "China",
+    "Djibouti",
+    "Ethiopia",
+];
 
     const API_URL = process.env.REACT_APP_API_BASE_URL
 
@@ -305,16 +319,22 @@ const WorkspaceManagement = ({onUpdateDefaultWorkspace}) => {
                                 required
                             />
                         </div>
-                        <div className="form-group">
-                            <label>Country:</label>
-                            <input
-                                type="text"
+                          <div className="form-group">
+                            <label htmlFor="country-select">Country:</label>
+                                <select
+                                id="country-select"
                                 value={country}
                                 onChange={(e) => setCountry(e.target.value)}
-                                placeholder="Enter Country"
                                 required
-                            />
-                        </div>
+                                >
+                                <option value="" disabled>Select Country</option> 
+                                {COUNTRY_OPTIONS.map((countryName) => (
+                                <option key={countryName} value={countryName}>
+                                {countryName}
+                                </option>
+                                ))}
+                                </select>
+                            </div>
                     </div>
                     
                     <div className="modal-footer">
@@ -384,15 +404,21 @@ const WorkspaceManagement = ({onUpdateDefaultWorkspace}) => {
                             />
                         </div>
                         <div className="form-group">
-                            <label>Country:</label>
-                            <input
-                                type="text"
+                            <label htmlFor="country-select">Country:</label>
+                                <select
+                                id="country-select"
                                 value={country}
                                 onChange={(e) => setCountry(e.target.value)}
-                                placeholder="Enter Country"
                                 required
-                            />
-                        </div>
+                                >
+                                <option value="" disabled>Select Country</option> 
+                                {COUNTRY_OPTIONS.map((countryName) => (
+                                <option key={countryName} value={countryName}>
+                                {countryName}
+                                </option>
+                                ))}
+                                </select>
+                            </div>
                     </div>
                     
                     <div className="modal-footer">
