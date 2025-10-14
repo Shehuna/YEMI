@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Modal from '../Modals/Modal';
+import toast from 'react-hot-toast';
 
 const JobManagment = () => {
     const [selectedJob, setSelectedJob] = useState('');
@@ -56,10 +57,12 @@ const JobManagment = () => {
             });
 
             if (!response.ok) throw new Error('Failed to add job');
+            const data = await response.json()
+            console.log(data)
+            const jobId = data.job.id
+            await grantJobPermission(jobId)
 
             fetchInitialData();
-            setNewJobName('');
-            setNewJobDescription('');
             setIsAddJobOpen(false);
         } catch (err) {
             setError(err.message);
@@ -156,6 +159,31 @@ const JobManagment = () => {
             console.error('Error deleting job:', err);
         }
     };
+
+  const grantJobPermission = async(jobid)=>{
+    console.log('granting')
+    setLoading(true)
+        try {
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/UserJobAuth/AddUserJob`,{
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: user,
+                    jobId: jobid,
+                    userIDScreen: user
+                })
+            })
+            if (!response.ok) throw new Error('Failed to update workspace');
+            toast.success("Job saved Successfully")
+            setLoading(false)
+        } catch (error) {
+             setError(error.message);
+             toast.error('Error updating workspace')
+        }finally{
+            setLoading(false)
+        }
+        
+  }
   return (
         <div className="settings-content">
             <div className="settings-action-buttons">

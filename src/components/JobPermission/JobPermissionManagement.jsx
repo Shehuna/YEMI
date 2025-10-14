@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast';
 
-const JobPermissionManagement = () => {
+const JobPermissionManagement = ({userid}) => {
     const [selectedUser, setSelectedUser] = useState('');
     const [selectedProject, setSelectedProject] = useState('');
     const [selectedJob, setSelectedJob] = useState('');
@@ -12,6 +12,8 @@ const JobPermissionManagement = () => {
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+
+    const user = JSON.parse(localStorage.getItem('user'));
 
     const API_URL = process.env.REACT_APP_API_BASE_URL
     
@@ -28,7 +30,7 @@ const JobPermissionManagement = () => {
                 body: JSON.stringify({
                     userId: selectedUser,
                     jobId: selectedJob,
-                    userIDScreen: 1
+                    userIDScreen: user.id
                 })
             })
             if (!response.ok) throw new Error('Failed to update workspace');
