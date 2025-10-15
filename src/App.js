@@ -35,13 +35,12 @@ function App() {
     }, []);
 
   const fetchNotes = async () => {
-    console.log("fetsching...")
     if (loadingRef.current) return;
     
     loadingRef.current = true;
     setLoading(true);
     try {
-      const response = await fetch(`${apiUrl}/SiteNote/GetSiteNotes?pageNumber=1&pageSize=${pageSize}&userId=${userId}`, {
+      const response = await fetch(`${apiUrl}/SiteNote/GetSiteNotes?pageNumber=${page}&pageSize=${pageSize}&userId=${userId}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json; charset=utf-8",
