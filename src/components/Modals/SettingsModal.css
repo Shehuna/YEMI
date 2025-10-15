@@ -88,7 +88,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #6e8efb, #a777e3);
+  background: linear-gradient(135deg, #3d69f8);
   color: white;
   border-radius: 50%;
   font-size: 1.3rem;
@@ -195,7 +195,7 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #6e8efb, #a777e3);
+  background: linear-gradient(135deg,#3d69f8);
   color: white;
   padding: 10px 20px; 
   border: none;
@@ -315,8 +315,6 @@
   background: #f0f0f0;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); 
 }
-
-
 
 
 @media (max-width: 768px) {

@@ -100,7 +100,7 @@ const Login = ({ onLogin }) => {
               onClick={handleSignUpRedirect}
               disabled={isLoading}
             >
-               Sign up
+                  Sign up
             </button>
           </div>
           {error && <div className="error-message">{error}</div>}
