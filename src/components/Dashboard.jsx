@@ -9,12 +9,7 @@ import ViewNoteModal from './Modals/ViewNoteModal';
 
 const Dashboard = ({ 
   notes,
-  currentPage,
-  pageSize,
-  totalPages, 
-  totalCount, 
-  handlePageSize,
-  handlePageChange,
+  userid,
   refreshNotes, 
   addSiteNote, 
   updateNote, 
@@ -24,7 +19,13 @@ const Dashboard = ({
   onUploadDocument, 
   onDeleteDocument, 
   fetchDocuments,
-  onLogout
+  onLogout,
+  workspaces,
+  defaultUserWorkspaceID,
+  defaultUserWorkspaceName,
+  onUpdateDefaultWorkspace,
+  onChange, 
+  
 }) => {
   //const [notes, setNotes] = useState([]);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
@@ -49,44 +50,20 @@ const Dashboard = ({
   const [showViewModal, setShowViewModal] = useState(false); 
   const [viewNote, setViewNote] = useState(null);
   const [currentTheme, setCurrentTheme] = useState('gray');
+  const [defaultWorkspace, setDefaultWorkspace] = useState(null)
+  const [isDropDownOpen, setIsDropDownOpen] = useState(false)
+  const [userWorkspaces, setUserWorkspaces] = useState([])
+  const [role, setRole] = useState(null)
+  const [isRoleLoading, setIsRoleLoading] = useState(false);
 
+  const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/api`;
+  console.log(defaultUserWorkspaceID)
 
   const handleThemeChange = (theme) => {
     setCurrentTheme(theme);
   };
+  
 
- /*  const fetchNotes = async () => {
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/SiteNote/GetSiteNotes?pageNumber=${currentPage}&pageSize=${pageSize}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-        }
-      });
-  
-      const text = await response.text();
-  
-      if (response.ok) {
-        console.log()
-        const data = JSON.parse(text);
-        console.log(data.totalCount)
-        console.log(data.totalPages)
-        setNotes(data.siteNotes);
-        setCurrentPage(data.pageNumber)
-        setPageSize(data.pageSize)
-        setTotalCount(data.totalCount)
-        setTotalPages(data.totalPages)
-        // fetchAllDocumentCounts(data);
-        setLoading(false);  
-      } else {
-        console.error(`Failed to fetch: ${response.status}`);
-      }
-  
-    } catch (error) {
-      console.error("Error fetching notes:", error);
-    }
-  };
-   */
   const styles = {
     searchBox: {
       display: 'flex',
@@ -125,58 +102,20 @@ const Dashboard = ({
     },
   };
 
-  
+ 
 
   const handleRowClick = useCallback((note) => {
     setSelectedRow(note.id);
     setViewNote(note);
     setShowViewModal(true);
-    
-    
   }, []);
 
-  /* const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= totalPages) {
-      setCurrentPage(newPage);
-      fetchData(newPage);
-    }
-  }; */
+ const handleSelect = (option) => {
+    onChange(option);
+    setIsDropDownOpen(false);
+  };
 
-  // Page size change handler
-  /* const handlePageSizeChange = (newSize) => {
-    setPageSize(newSize);
-    setCurrentPage(1); // Reset to first page when changing size
-    fetchData(1, newSize);
-  }; */
-
-    // Generate page numbers for pagination controls
-  /* const getPageNumbers = () => {
-    const pages = [];
-    const maxVisiblePages = 5;
-    
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-    
-    // Adjust if we're at the end
-    if (endPage - startPage + 1 < maxVisiblePages) {
-      startPage = Math.max(1, endPage - maxVisiblePages + 1);
-    }
-    
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(i);
-    }
-    
-    return pages;
-  }; */
-
-  /* if (loading && data.length === 0) {
-    return <div className="loading">Loading...</div>;
-  }
-
-  if (error) {
-    return <div className="error">Error: {error}</div>;
-  } */
-
+ 
   const loadDocumentsForView = async (noteId) => {
     try {
       setLoadingDocuments(prev => ({ ...prev, [noteId]: true }));
@@ -229,16 +168,11 @@ const Dashboard = ({
   }; */
 
   useEffect(() => {
-    // const fetchAllDocumentCounts = async () => {
-    //   for (const note of notes) {
-    //     if (!documentCounts.hasOwnProperty(note.id) && !loadingCounts[note.id]) {
-    //       await fetchDocumentCount(note.id);
-    //     }
-    //   }
-    // };
-    
-    // fetchAllDocumentCounts();
-  }, [notes, documentCounts, loadingCounts]);
+    if(userid && defaultUserWorkspaceID){
+        fetchUserWorkspaceRole();
+    }
+      
+  }, [userid, defaultUserWorkspaceID]); 
 
   const filteredNotes = useMemo(() => {
     
@@ -268,7 +202,8 @@ const Dashboard = ({
     
     return result;
   }, [notes, hierarchy, selectedValues, searchTerm, searchColumn]);
-  
+
+ 
 
   const handleRowSelect = useCallback((note) => {
     setSelectedRow(note.id);
@@ -356,6 +291,77 @@ const Dashboard = ({
     };
   }, [noteDocuments]);
 
+
+  const fetchUserWorkspaceRole = async () => {
+    setIsRoleLoading(true);
+    console.log('fetching')
+    try {
+      console.log('fetching')
+      const response = await fetch(`${apiUrl}/UserWorkspace/GetWorkspacesByUserId/${userid}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+        }
+      });
+  
+       if (response.ok) {
+        const data = await response.json();
+        const userWorkspaces = data.userWorkspaces || [];
+        
+        const workspace = userWorkspaces.find(res => res.workspaceID == defaultUserWorkspaceID);
+       
+        const newRole = workspace?.role || null;
+        
+        setRole(newRole);
+        
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      setRole(null);
+    } finally {
+      setIsRoleLoading(false);
+    }
+  }
+
+ const fetchWorkspaceByUserId = async (workspaces) => {
+    console.log(workspaces)
+    for (let i = 0; i < workspaces.length; i++) {
+            if(workspaces[i].userID === userid){
+              fetchWorkspaceByid(workspaces[i].userID)
+              console.log(workspaces[i].workspaceID)
+        }
+    } 
+    
+  }
+
+  const handleOpenSettings = () => {
+        
+    if (isRoleLoading) {
+      return;
+    }
+    setShowSettingsModal(true);
+  };
+  const fetchWorkspaceByid = async (useId) => {
+    try {
+      const response = await fetch(`${apiUrl}/Workspace/GetWorkspacesByUserId/${useId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+        }
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        console.log()
+        setUserWorkspaces(data.workspaces);
+        
+        return;
+      }
+    } catch (error) {
+      console.error("Error fetching notes:", error);
+    }
+  }
+
   const handleAddFromRow = (note) => {
   const today = new Date();
   const year = today.getFullYear();
@@ -372,13 +378,37 @@ const Dashboard = ({
   setShowNewModal(true);
 };
 
-  const handleViewAttachments = useCallback(async (note) => {
-    setShowViewModal(false);
-    setSelectedFileNote(note); 
-    setShowAttachedFileModal(true);
-    
-    loadDocuments(note.id);
-}, [loadDocuments]);
+  const handleViewAttachments = async (note) => {
+    try {
+      console.log("Starting document fetch for note:", note.id);
+      
+      setSelectedFileNote(note);
+      setShowAttachedFileModal(true);
+  
+      const response = await fetch(
+          `${process.env.REACT_APP_API_BASE_URL}/api/Documents?reference=${note.id}`
+      );
+  
+      console.log("Response status:", response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Server responded with ${response.status}: ${errorText}`);
+      }
+
+      const documents = await response.json().documents || [];
+      console.log("Received documents:", documents);
+
+      setNoteDocuments(prev => ({
+        ...prev,
+        [note.id]: documents
+      }));
+
+    } catch (error) {
+      console.error("Document load failed:", error);
+      setError(`Failed to load documents: ${error.message}`);
+    }
+  };
 
   const handleUploadDocumentWrapper = async (documentName, file, noteId) => { 
     try {
@@ -499,14 +529,28 @@ const Dashboard = ({
     setShowEditModal(true);
   };
 
-  const handleDelete = async (noteId) => {
-    if (window.confirm('Are you sure you want to delete this note?')) {
-      try { 
-        await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/SiteNote/DeleteSiteNote/${noteId}`, { method: 'DELETE' });
-        refreshNotes();
-      } catch (error) {
-        console.error('Error deleting note:', error);
-      }
+  const handleDelete = async (note) => {
+        const creationDate = note.timeStamp;
+            //|| note.dateCreated || note.createdDate || note.date
+            if (creationDate) {
+              const createdAt = new Date(creationDate);
+              const now = new Date();
+              const hoursDiff = (now - createdAt) / (1000 * 60 * 60); 
+              if(hoursDiff > 24){
+                 alert('Cannot delete this note it is older than 24 hours')
+              }
+             else{
+              if (window.confirm('Are you sure you want to delete this note?')) {
+              try { 
+                    await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/SiteNote/DeleteSiteNote/${note.id}`, { method: 'DELETE' });
+                    refreshNotes();
+                  } catch (error) {
+                    console.error('Error deleting note:', error);
+                }
+             }
+            } 
+       
+      
     }
   };
   const getUniqueValues = (column, currentNotes) => {
@@ -608,9 +652,10 @@ const Dashboard = ({
               }}></span>
             </span>
           </h1>
-  
-          <button 
-            onClick={() => setShowSettingsModal(true)}
+           <div>
+              <p className="dropdown-container">{defaultUserWorkspaceName}</p>
+              <button 
+            onClick={handleOpenSettings}
             style={{
               background: 'rgba(52, 152, 219, 0.1)',
               border: '1px solid rgba(52, 152, 219, 0.2)',
@@ -631,6 +676,8 @@ const Dashboard = ({
           >
             <i className="fas fa-sliders-h" />
           </button>
+            </div>
+          
         </div>
   
         <div 
@@ -830,7 +877,7 @@ const Dashboard = ({
                   title="Delete" 
                   onClick={(e) => { 
                   e.stopPropagation(); 
-                  handleDelete(note.id);
+                  handleDelete(note);
                   }}>
                   <i className="fas fa-trash"></i>
                  </a>
@@ -845,9 +892,14 @@ const Dashboard = ({
 
       {showSettingsModal && (
         <SettingsModal 
+          //key={role}
           isOpen={showSettingsModal}
           onClose={() => setShowSettingsModal(false)} 
           onLogout={onLogout}
+          defWorkID={defaultUserWorkspaceID}
+          role={role}
+          onUpdateDefaultWorkspace={onUpdateDefaultWorkspace}
+          
         />
       )}
 

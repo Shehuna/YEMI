@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Modal from '../Modals/Modal';
 import toast from 'react-hot-toast';
 
-const WorkspaceManagement = () => {
+const WorkspaceManagement = ({onUpdateDefaultWorkspace}) => {
     
     const [workspaceName, setWorkspaceName] = useState('');
     const [ownerUserID, setOwnerUserID] = useState('');
@@ -26,8 +26,10 @@ const WorkspaceManagement = () => {
 
     const [isAddWorkspaceOpen, setIsAddWorkspaceOpen] = useState(false);
     const [isEditWorkspaceOpen, setIsEditWorkspaceOpen] = useState(false);
+    const [isChangeWorkspaceOpen, setIsChangeWorkspaceOpen] = useState(false);
     const [selectedWorkspace, setSelectedWorkspace] = useState('');
     const [workspaces, setWorkspaces] = useState([]);
+    
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     const COUNTRY_OPTIONS = [
@@ -48,13 +50,13 @@ const WorkspaceManagement = () => {
     const API_URL = process.env.REACT_APP_API_BASE_URL
 
       useEffect(() => {
-            fetchWorkspaces();
             const user = JSON.parse(localStorage.getItem('user'));
             setOwnerUserID(user.id)
+            fetchWorkspaces(user.id);
         }, []);
 
         useEffect(() => {
-                if (isEditWorkspaceOpen && selectedWorkspace) {
+                if (isChangeWorkspaceOpen && selectedWorkspace) {
                     const workspace = workspaces.find(w => w.id === parseInt(selectedWorkspace));
                     if (workspace) {
                         setWorkspaceName(workspace.name)
@@ -68,13 +70,13 @@ const WorkspaceManagement = () => {
                 } else{
                     setWorkspaceName('')
                 }
-            }, [isEditWorkspaceOpen, selectedWorkspace, workspaces]);
+            }, [isChangeWorkspaceOpen, selectedWorkspace, workspaces]);
     
     
-       const fetchWorkspaces = async () => {
+       const fetchWorkspaces = async (userid) => {
         setLoading(true);
         try {
-          const response = await fetch(`${API_URL}/api/Workspace/GetWorkspace`,{
+          const response = await fetch(`${API_URL}/api/Workspace/GetWorkspacesByUserId/${userid}`,{
             method: 'GET'
           });
           
@@ -129,6 +131,7 @@ const WorkspaceManagement = () => {
         setSelectedWorkspace('');
         setIsEditWorkspaceOpen(false);
         toast.success('Worksapce is updated successfully')
+        fetchWorkspaces(ownerUserID);
     } catch (err) {
         setError(err.message);
         toast.error('Error updating workspace')
@@ -154,8 +157,6 @@ const WorkspaceManagement = () => {
             });
 
         if (!response.ok) throw new Error('Failed to add workspace');
-        
-        toast.success('Workspace Created Successfully')
         fetchWorkspaces(); 
         setWorkspaceName('')
         setOwnerType(1)
@@ -165,20 +166,86 @@ const WorkspaceManagement = () => {
         setCountry('')
         setStatus(2)
         setIsAddWorkspaceOpen(false);
+        const data = await response.json()
+        const workspaceID =  data.workspace.id
+        console.log(workspaceID)
+        await addUserToWorkSpace(ownerUserID, workspaceID)
     } catch (err) {
         setError(err.message);
         console.error('Error adding workspace:', err);
     }
 };
+
+  const addUserToWorkSpace = async(userid, workspaceId) => {
+    try {
+        const response = await fetch(`${API_URL}/api/UserWorkspace/AddUserWorkspace`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                userID: userid,
+                workspaceID: workspaceId,
+                role: 1,
+                status: 1
+            }),
+        
+            });
+
+        if (!response.ok) throw new Error('Failed to add workspace');
+        toast.success('Workspace Created Successfully')
+        fetchWorkspaces(userid);
+        } catch (err) {
+        setError(err.message);
+        console.error('Error adding workspace:', err);
+    }
+  }
+
+  const updateDefWorkspace = async () =>{
+    onUpdateDefaultWorkspace(selectedWorkspace, workspaceName)
+    setIsChangeWorkspaceOpen(false)
+    await updateUserDefaultWorkspace()
+  }
+
+  const updateUserDefaultWorkspace = async () =>{
+    try {
+        const response = await fetch(`${API_URL}/api/UserManagement/UpdateDefaultWorkspaceByUserId/${ownerUserID}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                defaultWorkspaceId: selectedWorkspace
+            }),
+        
+            });
+
+        if (!response.ok) throw new Error('Failed to add workspace');
+        else toast.success('default workspace is successfully updated')
+    } catch (err) {
+        setError(err.message);
+        console.error('Error adding workspace:', err);
+    }
+  }
+
+  const handleOptionClick = (works) => {
+        console.log(works)
+        setWorkspaceName(works.name)
+        setOwnerType(works.ownerType)
+        setOwnerName(works.ownerName)
+        setAddressLine1(works.addressLine1)
+        setCity(works.city)
+        setCountry(works.country)
+        setStatus(works.status)
+  }
   return (
      
     <div className="settings-content">
         <div className="settings-action-buttons">
-            <button className="btn-primary" onClick={() => setIsAddWorkspaceOpen(true)}>
+            <button className="btn-primary" onClick={() => setIsAddWorkspaceOpen(true)} disabled>
                 Add Workspace
             </button>
-            <button className="btn-secondary" onClick={() => setIsEditWorkspaceOpen(true)} disabled={!selectedWorkspace}>
+            <button className="btn-secondary" onClick={() => setIsEditWorkspaceOpen(true)} disabled>
                 Edit Workspace
+            </button>
+            <button className="btn-secondary" onClick={() => setIsChangeWorkspaceOpen(true)} >
+                Select Workspace
             </button>
         </div>
         <div className="settings-lookup-list">
@@ -191,7 +258,7 @@ const WorkspaceManagement = () => {
             >
                 <option value="">Select a Workspace</option>
                 {workspaces.map(workspace => (
-                    <option key={workspace.id} value={workspace.id}>
+                    <option onClick={()=>handleOptionClick(workspace)} key={workspace.id} value={workspace.id}>
                         {workspace.name}
                     </option>
                 ))}
@@ -364,6 +431,39 @@ const WorkspaceManagement = () => {
                     </div>
                 </div>
     </Modal>
+
+        <Modal isOpen={isChangeWorkspaceOpen} onClose={() => setIsChangeWorkspaceOpen(false)} title="Change Workspace">
+            <div className="settings-form">
+                    <div className="settings-form">
+                            
+                            <div className="form-group">
+                                <label>Workspaces:</label>
+                                <select
+                                   value={selectedWorkspace}
+                                    onChange={(e) => setSelectedWorkspace(e.target.value)}
+                                >
+                                    <option value="">Select Workspaces</option>
+                                    {workspaces.map(workspace => (
+                                    <option onClick={()=>handleOptionClick(workspace)} key={workspace.id} value={workspace.id}>
+                                        {workspace.name}
+                                    </option>
+                ))}
+                                </select>
+                            </div>
+                            <div className="modal-footer">
+                            <button className="btn-primary" onClick={updateDefWorkspace} >
+                                Change
+                            </button>
+                            <button className="btn-close" onClick={()=>setIsChangeWorkspaceOpen(false)}>
+                                Cancel
+                            </button>
+                        </div>
+                           
+                        </div>
+                        
+                       
+                    </div>
+        </Modal>
     </div>
 
     

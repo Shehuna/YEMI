@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import Modal from '../Modals/Modal';
+import toast from 'react-hot-toast';
 
-const JobManagment = () => {
+const JobManagment = ({defWorkId}) => {
     const [selectedJob, setSelectedJob] = useState('');
     const [newJobName, setNewJobName] = useState('');
     const [user, setUser] = useState('');
@@ -56,10 +57,12 @@ const JobManagment = () => {
             });
 
             if (!response.ok) throw new Error('Failed to add job');
+            const data = await response.json()
+            console.log(data)
+            const jobId = data.job.id
+            await grantJobPermission(jobId)
 
             fetchInitialData();
-            setNewJobName('');
-            setNewJobDescription('');
             setIsAddJobOpen(false);
         } catch (err) {
             setError(err.message);
@@ -156,6 +159,31 @@ const JobManagment = () => {
             console.error('Error deleting job:', err);
         }
     };
+
+  const grantJobPermission = async(jobid)=>{
+    console.log('granting')
+    setLoading(true)
+        try {
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/UserJobAuth/AddUserJob`,{
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: user,
+                    jobId: jobid,
+                    userIDScreen: user
+                })
+            })
+            if (!response.ok) throw new Error('Failed to update workspace');
+            toast.success("Job saved Successfully")
+            setLoading(false)
+        } catch (error) {
+             setError(error.message);
+             toast.error('Error updating workspace')
+        }finally{
+            setLoading(false)
+        }
+        
+  }
   return (
         <div className="settings-content">
             <div className="settings-action-buttons">
@@ -180,7 +208,7 @@ const JobManagment = () => {
                 >
                     {jobs
                         .filter(job => {
-                            const project = projects.find(p => p.id === job.projectId);
+                            const project = projects.find(p => (p.id === job.projectId && p.workspaceId === defWorkId));
                             return project && project.status === 1; // Only include jobs from active projects
                         })
                         .map(job => {
@@ -219,7 +247,7 @@ const JobManagment = () => {
                         >
                             <option value="">Select Project</option>
                             {projects
-                                .filter(project => project.status === 1) // Only show active projects
+                                .filter(project => (project.status === 1 && project.workspaceId === defWorkId)) // Only show active projects
                                 .map(project => (
                                     <option key={project.id} value={project.id}>{project.name}</option>
                                 ))}

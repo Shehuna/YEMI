@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import Modal from '../Modals/Modal';
 
-const ProjectManagement = () => {
+const ProjectManagement = ({workspaceId}) => {
      const [projects, setProjects] = useState([])
+     const [filteredProjects, setFilteredProjects] = useState([])
      const [selectedProject, setSelectedProject] = useState('')
      const [newProjectName, setNewProjectName] = useState('');
      const [user, setUser] = useState('');
@@ -11,23 +12,23 @@ const ProjectManagement = () => {
      const [newProjectDescription, setNewProjectDescription] = useState('');
      const [selectedWorkspace, setSelectedWorkspace] = useState('');
      const [newProjectStatus, setNewProjectStatus] = useState(1);
-     const [workspaces, setWorkspaces] = useState([]);
+     const [workspaceName, setWorkspaceName] = useState('');
      const [loading, setLoading] = useState(true);
      const [error, setError] = useState(null);
 
      const API_URL = process.env.REACT_APP_API_BASE_URL
 
       useEffect(() => {
-            fetchWorkspaces();
+            fetchWorkspacesById();
             fetchProjects();
             const user = JSON.parse(localStorage.getItem('user'));
             setUser(user.id)
         }, []);
          
-    const fetchWorkspaces = async () => {
+    const fetchWorkspacesById = async () => {
         setLoading(true);
         try {
-        const response = await fetch(`${API_URL}/api/Workspace/GetWorkspace`,{
+        const response = await fetch(`${API_URL}/api/Workspace/GetWorkspaceById/${workspaceId}`,{
             method: 'GET'
         });
         
@@ -36,7 +37,8 @@ const ProjectManagement = () => {
         }
         
         const data = await response.json();
-        setWorkspaces(data.workspaces || []);
+        setWorkspaceName(data.workspace.name)
+        //setWorkspaces(data.workspaces || []);
         } catch (err) {
         setError(err.message);
         console.error('Error fetching Workspaces:', err);
@@ -47,7 +49,7 @@ const ProjectManagement = () => {
     
     useEffect(() => {
         if (isEditProjectOpen && selectedProject) {
-            const project = projects.find(p => p.id === parseInt(selectedProject));
+            const project = filteredProjects.find(p => p.id === parseInt(selectedProject));
             if (project) {
                 setNewProjectName(project.name || '');
                 setNewProjectStatus(project.status || 1);
@@ -67,12 +69,30 @@ const ProjectManagement = () => {
             method: 'GET'
         });
         
-        if (!response.ok) {
+        if (response.ok) {
+            const data = await response.json();
+            const result = data.projects
+            console.log(result)
+            const filterResults = result.filter((res)=>{
+                return res.workspaceId === workspaceId && res.status === 1
+            })
+            setFilteredProjects(filterResults|| []);
+            
+        }
+        else{
             throw new Error('Error fetching users data!');
         }
+        /* if(response.data.success){
+          console.log(response.data.appeals)
+          const data = response.data.appeals
+          const searchResult = await data.filter((dat)=>{
+             return dat.teamLeaderComment !== '' && dat.appealStatus === 'returned'
+          })
+          setFilteredAppeals(searchResult)
+          setTeamLeaderComment(true)
+        } */
         
-        const data = await response.json();
-        setProjects(data.projects || []);
+        
         } catch (err) {
         setError(err.message);
         console.error('Error fetching Workspaces:', err);
@@ -91,7 +111,7 @@ const ProjectManagement = () => {
                 body: JSON.stringify({ 
                     name: newProjectName, 
                     description: newProjectDescription, 
-                    workspaceId: parseInt(selectedWorkspace),
+                    workspaceId: workspaceId,
                     userId: user
                 })
             });
@@ -159,7 +179,7 @@ const ProjectManagement = () => {
                 onChange={(e) => setSelectedProject(e.target.value)}
             >
                 <option value="">Select a Project</option>
-                {projects.map(project => (
+                {filteredProjects.map(project => (
                     
                     <option 
                         key={project.id} 
@@ -185,19 +205,11 @@ const ProjectManagement = () => {
                             <div className="form-group">
                                 <label>Workspace:</label>
                                 <select
-                                    value={selectedWorkspace}
-                                    onChange={(e) => setSelectedWorkspace(e.target.value)}
-                                    disabled={workspaces.length === 0}
+                                    value={workspaceId}
+                                    //onChange={(e) => setSelectedWorkspace(e.target.value)}
+                                    disabled
                                 >
-                                    {workspaces.length === 0 ? (
-                                        <option value="">No workspaces available</option>
-                                    ) : (
-                                        workspaces.map(workspace => (
-                                            <option key={workspace.id} value={workspace.id}>
-                                                {workspace.name}
-                                            </option>
-                                        ))
-                                    )}
+                                    <option value={workspaceId}>{workspaceName}</option>
                                 </select>
                             </div>
                             <div className="form-group">
@@ -221,7 +233,7 @@ const ProjectManagement = () => {
                                 <button
                                     className="btn-primary"
                                     onClick={handleAddProject}
-                                    disabled={!newProjectName || !selectedWorkspace}
+                                    disabled={!newProjectName }
                                 >
                                     OK
                                 </button>

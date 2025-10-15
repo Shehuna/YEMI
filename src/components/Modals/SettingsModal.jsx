@@ -8,8 +8,16 @@ import UserManagement from '../Users/UserManagement';
 import WorkspaceManagement from '../Workspaces/WorkspaceManagement';
 import ProjectManagement from '../Projects/ProjectManagement';
 import JobManagment from '../Jobs/JobManagment';
+import JobPermissionManagement from '../JobPermission/JobPermissionManagement';
 
-const SettingsModal = ({ isOpen, onClose, onLogout }) => { 
+const SettingsModal = ({ 
+    isOpen, 
+    onClose, 
+    onLogout, 
+    role, 
+    defWorkID, 
+    onUpdateDefaultWorkspace, 
+   }) => { 
     const [activeTab, setActiveTab] = useState(null);
     const [projects, setProjects] = useState([]);
     const [jobs, setJobs] = useState([]);
@@ -29,20 +37,20 @@ const SettingsModal = ({ isOpen, onClose, onLogout }) => {
     const [selectedStatus, setSelectedStatus] = useState(1);
     const [newProjectName, setNewProjectName] = useState('');
     const [newJobName, setNewJobName] = useState('');
-
-    const [isAddProjectOpen, setIsAddProjectOpen] = useState(false);
+    
     const [isEditProjectOpen, setIsEditProjectOpen] = useState(false);
-    const [isAddJobOpen, setIsAddJobOpen] = useState(false);
+   
     const [isEditJobOpen, setIsEditJobOpen] = useState(false);
     const [newJobStatus, setNewJobStatus] = useState(1);
     const [newProjectStatus, setNewProjectStatus] = useState(1);
+    console.log(role)
     const navigate = useNavigate();
-
+    
     useEffect(() => {
         if (isOpen) {
             fetchInitialData();
         }
-    }, [isOpen]);
+    }, [isOpen, role]);
     
     const [selectedWorkspace, setSelectedWorkspace] = useState('');
     const [workspaces, setWorkspaces] = useState([]);
@@ -158,9 +166,6 @@ useEffect(() => {
         }
     };
 
-    
-
-    
 
     const handleAddUser = () => {
         alert(`User ${selectedUser} added to database ${selectedDatabase}`);
@@ -173,85 +178,16 @@ useEffect(() => {
         setSelectedUser('');
         setSelectedDatabase('');
     };
-
-    const handleGrantPermission = () => {
-        alert(`Permission granted to user ${selectedUser} for job ${selectedJob}`);
-        setSelectedUser('');
-        setSelectedProject('');
-        setSelectedJob('');
-    };
-
-    const handleDenyPermission = () => {
-        alert(`Permission denied to user ${selectedUser} for job ${selectedJob}`);
-        setSelectedUser('');
-        setSelectedProject('');
-        setSelectedJob('');
-    };
-
+   
     const handleUpdateStatus = () => {
         alert(`Job ${selectedJob} status updated to ${selectedStatus}`);
         setSelectedProject('');
         setSelectedJob('');
         setSelectedStatus(1);
     };
+    
 
-
-  const renderJobPermissions = () => (
-        <div className="settings-content">
-            <div className="settings-form">
-                <div className="form-group">
-                    <label>Username:</label>
-                    <select
-                        value={selectedUser}
-                        onChange={(e) => setSelectedUser(e.target.value)}
-                    >
-                        <option value="">Select User</option>
-                        {users.map(user => (
-                            <option key={user.id} value={user.id}>{user.userName}</option>
-                        ))}
-                    </select>
-                </div>
-
-                <div className="form-group">
-                    <label>Project:</label>
-                    <select
-                        value={selectedProject}
-                        onChange={(e) => setSelectedProject(e.target.value)}
-                    >
-                        <option value="">Select Project</option>
-                        {projects.map(project => (
-                            <option key={project.id} value={project.id}>{project.name}</option>
-                        ))}
-                    </select>
-                </div>
-
-                <div className="form-group">
-                    <label>Job:</label>
-                    <select
-                        value={selectedJob}
-                        onChange={(e) => setSelectedJob(e.target.value)}
-                        disabled={!selectedProject}
-                    >
-                        <option value="">Select Job</option>
-                        {jobs.filter(job => job.projectId === parseInt(selectedProject)).map(job => (
-                            <option key={job.id} value={job.id}>{job.name}</option>
-                        ))}
-                    </select>
-                </div>
-            </div>
-
-            <div className="settings-action-buttons">
-                <button className="btn-primary" onClick={handleGrantPermission} disabled={!selectedUser || !selectedProject || !selectedJob}>
-                    Grant
-                </button>
-                <button className="btn-danger" onClick={handleDenyPermission} disabled={!selectedUser || !selectedProject || !selectedJob}>
-                    Deny
-                </button>
-            </div>
-        </div>
-    );
-
-    const renderJobStatusUpdate = () => (
+  const renderJobStatusUpdate = () => (
         <div className="settings-content">
             <div className="settings-form">
                 <div className="form-group">
@@ -302,7 +238,9 @@ useEffect(() => {
     );
 
     const renderMainMenu = () => (
+        
         <div className="settings-options-container">
+            
             {[
                 {
                     id: 'projectManagement',
@@ -335,12 +273,15 @@ useEffect(() => {
                     text: 'Workspace Settings'
                 }
             ].map((option) => (
+                
                 <button
                     key={option.id}
                     className="settings-option"
                     onClick={() => setActiveTab(option.id)}
+                    disabled={option.id !== 'workspaceSettings' && role !== 1}
                     aria-label={`Open ${option.text} settings`}
                 >
+                    
                     <div className="option-icon">
                         <i className={`fas ${option.icon}`} />
                     </div>
@@ -373,17 +314,17 @@ useEffect(() => {
 
         switch (activeTab) {
             case 'projectManagement':
-                return <ProjectManagement />;
+                return <ProjectManagement workspaceId={defWorkID}/>;
             case 'jobManagement':
-                return <JobManagment />;
+                return <JobManagment defWorkId={defWorkID}/>;
             case 'userManagement':
                 return <UserManagement />;
             case 'jobPermissions':
-                return renderJobPermissions();
+                return <JobPermissionManagement defId={defWorkID} />;
             case 'jobStatus':
                 return renderJobStatusUpdate();
             case 'workspaceSettings':
-                return <WorkspaceManagement />;
+                return <WorkspaceManagement onUpdateDefaultWorkspace={onUpdateDefaultWorkspace}/>;
             default:
                 return <div>Unknown settings option</div>;
         }

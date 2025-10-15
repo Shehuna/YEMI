@@ -44,7 +44,7 @@ const Login = ({ onLogin }) => {
       }
     } catch (err) {
       console.error('Login error:', err);
-      setError('Login failed. Please check your username/password.');
+      setError(err.message || 'An unexpected error occurred. Please try again later.');
     } finally {
       setIsLoading(false);
     }
