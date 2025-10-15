@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast';
 
-const JobPermissionManagement = ({defId}) => {
+const JobPermissionManagement = ({defId, users}) => {
     const [selectedUser, setSelectedUser] = useState('');
     const [selectedProject, setSelectedProject] = useState('');
     const [selectedJob, setSelectedJob] = useState('');
-    const [users, setUsers] = useState([]);
+    //const [users, setUsers] = useState([]);
     const [databases, setDatabases] = useState([]);
     const [selectedStatus, setSelectedStatus] = useState(1);
     const [projects, setProjects] = useState([]);
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [filteredUsers, setFilteredUsers] =useState([])
 
     const user = JSON.parse(localStorage.getItem('user'));
 
@@ -19,7 +20,7 @@ const JobPermissionManagement = ({defId}) => {
     
    useEffect(() => {
         fetchInitialData();
-      }, []);
+      }, [defId]);
 
   const handleGrantPermission = async() => {
         setLoading(true)
@@ -62,11 +63,11 @@ const JobPermissionManagement = ({defId}) => {
         try {
           const projectsUrl = `${process.env.REACT_APP_API_BASE_URL}/api/Project/GetProjects`;
           const jobsUrl = `${process.env.REACT_APP_API_BASE_URL}/api/Job/GetJobs`;
-          const usersURL = `${process.env.REACT_APP_API_BASE_URL}/api/UserManagement/GetUsers`;
+          const userWorkspaceURL = `${process.env.REACT_APP_API_BASE_URL}/api/UserWorkspace/GetUserWorkspaces`;
 
             console.log('Fetching from:', projectsUrl, jobsUrl);
 
-            const [projectsRes, jobsRes, userRes] = await Promise.all([
+            const [projectsRes, jobsRes, userWorkRes, userRes] = await Promise.all([
                 fetch(projectsUrl, {
                     method: 'GET',
                     headers: {
@@ -79,31 +80,35 @@ const JobPermissionManagement = ({defId}) => {
                         'Content-Type': 'application/json',
                     },
                 }),
-                fetch(usersURL, {
+                fetch(userWorkspaceURL, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                })
+                }),
+                
             ]);
 
             if (!projectsRes.ok) throw new Error(`Projects API error: ${projectsRes.status}`);
             if (!jobsRes.ok) throw new Error(`Jobs API error: ${jobsRes.status}`);
-            if (!userRes.ok) throw new Error(`Jobs API error: ${userRes.status}`);
+            if (!userWorkRes.ok) throw new Error(`Jobs API error: ${userWorkRes.status}`);
+            
 
             var projectsData = await projectsRes.json();
             var jobsData = await jobsRes.json();
-            var userData = await userRes.json()
+            var userData = await userWorkRes.json()
+
 
             projectsData = projectsData.projects || [];
             jobsData = jobsData.jobs || [];
-            userData = userData.users || []
-
+            userData = userData.userWorkspaces || []
+            //getUserData(userData)
             console.log('Received data:', { projectsData, jobsData });
 
             setProjects(projectsData);
             setJobs(jobsData);
-            setUsers(userData)
+            //setUsers(usere)
+            await getUserData(userData)
         } catch (err) {
             setError(err.message);
             console.error('API Error:', err);
@@ -112,6 +117,14 @@ const JobPermissionManagement = ({defId}) => {
         }
     }
 
+  const getUserData = async (userWorkspaces) => {
+  const filteredUserWork = userWorkspaces.filter(userWorkspace => userWorkspace.workspaceID === defId);
+  
+  const userIds = [...new Set(filteredUserWork.map(work => work.userID))];
+  const uniqueUsers = userIds.map(id => users.find(u => u.id === id)).filter(Boolean);
+  
+  setFilteredUsers(uniqueUsers);
+}
   
   return (
     <div className="settings-content">
@@ -122,10 +135,11 @@ const JobPermissionManagement = ({defId}) => {
                         value={selectedUser}
                         onChange={(e) => setSelectedUser(e.target.value)}
                     >
+                        
                         <option value="">Select User</option>
-                        {users.map(user => (
+                            {filteredUsers.map(user => (
                             <option key={user.id} value={user.id}>{user.userName}</option>
-                        ))}
+                            ))}
                     </select>
                 </div>
 

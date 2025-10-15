@@ -260,7 +260,9 @@ function App() {
     setUserDefaultWork('')
   };
  
-
+  const refreshNote = () =>{
+    fetchInitialData()
+  }
   const fetchInitialData = async () => {
     setLoading(true);
     setError(null);
@@ -660,10 +662,11 @@ function App() {
                     notes={notes} 
                     userid={userId}
                     workspaces={workspaces}
+                    
                     defaultUserWorkspaceID={defaultWorkspace}
                     defaultUserWorkspaceName={userDefaultWork}
                     onUpdateDefaultWorkspace={updateDefaultWorkspace}
-                    refreshNotes={fetchInitialData} 
+                    refreshNotes={refreshNote} 
                     addSiteNote={addSiteNote} 
                     updateNote={updateNote}
                     projects={projects} 

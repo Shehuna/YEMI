@@ -15,7 +15,7 @@ const Dashboard = ({
   updateNote, 
   projects, 
   jobs, 
-  files, 
+  onUpdateNotes, 
   onUploadDocument, 
   onDeleteDocument, 
   fetchDocuments,
@@ -513,6 +513,10 @@ const Dashboard = ({
     }
   };
 
+  const resetNotes = () => {
+    onUpdateNotes()
+  }
+
   const removeHierarchyLevel = (column) => {
     const index = hierarchy.indexOf(column);
     setHierarchy(hierarchy.filter(col => col !== column));
@@ -725,7 +729,9 @@ const Dashboard = ({
             onClick={() => setShowNewModal(true)}
           >
             <i className="fas fa-plus-circle"></i> New Note
+             
           </button>
+          
           {showNewModal && (
             <NewNoteModal
               isOpen={showNewModal}
@@ -736,6 +742,7 @@ const Dashboard = ({
               jobs={jobs}
               onUploadDocument={handleUploadDocumentWrapper}
               prefilledData={prefilledData}
+              defWorkSpaceId={defaultUserWorkspaceID}
             />
           )}
         </div>

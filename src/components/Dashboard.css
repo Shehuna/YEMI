@@ -132,3 +132,8 @@
   border: 1 soldi gray;
 }
 
+.fas .fa-refresh{
+  color: #007bff;
+  cursor: pointer;
+}
+

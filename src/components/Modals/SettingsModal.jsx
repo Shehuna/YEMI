@@ -50,7 +50,7 @@ const SettingsModal = ({
         if (isOpen) {
             fetchInitialData();
         }
-    }, [isOpen, role]);
+    }, [isOpen, role, defWorkID]);
     
     const [selectedWorkspace, setSelectedWorkspace] = useState('');
     const [workspaces, setWorkspaces] = useState([]);
@@ -320,7 +320,7 @@ useEffect(() => {
             case 'userManagement':
                 return <UserManagement />;
             case 'jobPermissions':
-                return <JobPermissionManagement defId={defWorkID} />;
+                return <JobPermissionManagement defId={defWorkID} users={users}/>;
             case 'jobStatus':
                 return renderJobStatusUpdate();
             case 'workspaceSettings':

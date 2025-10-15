@@ -11,7 +11,8 @@ const NewNoteModal = ({
     refreshNotes,
     addSiteNote,
     onUploadDocument,
-    prefilledData = null
+    prefilledData = null,
+    defWorkSpaceId
 }) => {
     const [activeTab, setActiveTab] = useState('journal');
     const [selectedProject, setSelectedProject] = useState('');
@@ -30,6 +31,7 @@ const NewNoteModal = ({
     const fileInputRef = useRef(null);
     const [isSaving, setIsSaving] = useState(false);
     const [apiError, setApiError] = useState(null);
+    console.log(defWorkSpaceId)
 
       const allowedFileTypes = {
     // Images
@@ -319,7 +321,7 @@ const NewNoteModal = ({
                                 }}
                             >
                                 <option value="">Select Project</option>
-                                {projects && projects.map(project => (
+                                {projects.filter(project => (project.workspaceId === defWorkSpaceId)).map(project => (
                                     <option key={project.id} value={project.id.toString()}>
                                         {project.name} (ID: {project.id})
                                     </option>

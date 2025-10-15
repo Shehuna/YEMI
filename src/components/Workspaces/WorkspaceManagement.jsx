@@ -30,6 +30,7 @@ const WorkspaceManagement = ({onUpdateDefaultWorkspace}) => {
     const [selectedWorkspace, setSelectedWorkspace] = useState('');
     const [workspaces, setWorkspaces] = useState([]);
     
+    
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     const COUNTRY_OPTIONS = [
