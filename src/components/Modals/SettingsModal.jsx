@@ -9,6 +9,7 @@ import WorkspaceManagement from '../Workspaces/WorkspaceManagement';
 import ProjectManagement from '../Projects/ProjectManagement';
 import JobManagment from '../Jobs/JobManagment';
 import JobPermissionManagement from '../JobPermission/JobPermissionManagement';
+import JobStatusManagement from '../JobStatus/JobStatusManagement';
 
 const SettingsModal = ({ 
     isOpen, 
@@ -187,56 +188,6 @@ useEffect(() => {
     };
     
 
-  const renderJobStatusUpdate = () => (
-        <div className="settings-content">
-            <div className="settings-form">
-                <div className="form-group">
-                    <label>Project:</label>
-                    <select
-                        value={selectedProject}
-                        onChange={(e) => setSelectedProject(e.target.value)}
-                    >
-                        <option value="">Select Project</option>
-                        {projects.filter(project => (project.status === 1 && project.workspaceId === defWorkID)).map(project => (
-                            <option key={project.id} value={project.id}>{project.name}</option>
-                        ))}
-                    </select>
-                </div>
-
-                <div className="form-group">
-                    <label>Job:</label>
-                    <select
-                        value={selectedJob}
-                        onChange={(e) => setSelectedJob(e.target.value)}
-                        disabled={!selectedProject}
-                    >
-                        <option value="">Select Job</option>
-                        {jobs.filter(job => job.projectId === parseInt(selectedProject)).map(job => (
-                            <option key={job.id} value={job.id}>{job.name}</option>
-                        ))}
-                    </select>
-                </div>
-
-                <div className="form-group">
-                    <label>Status:</label>
-                    <select
-                        value={selectedStatus}
-                        onChange={(e) => setSelectedStatus(e.target.value)}
-                    >
-                        <option value="1">Active</option>
-                        <option value="2">Inactive</option>
-                    </select>
-                </div>
-            </div>
-
-            <div className="settings-action-buttons">
-                <button className="btn-primary" onClick={handleUpdateStatus} disabled={!selectedProject || !selectedJob}>
-                    Update
-                </button>
-            </div>
-        </div>
-    );
-
     const renderMainMenu = () => (
         
         <div className="settings-options-container">
@@ -322,7 +273,7 @@ useEffect(() => {
             case 'jobPermissions':
                 return <JobPermissionManagement defId={defWorkID} users={users}/>;
             case 'jobStatus':
-                return renderJobStatusUpdate();
+                return <JobStatusManagement defId={defWorkID} />;
             case 'workspaceSettings':
                 return <WorkspaceManagement onUpdateDefaultWorkspace={onUpdateDefaultWorkspace}/>;
             default:

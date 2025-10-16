@@ -327,7 +327,7 @@ const NewNoteModal = ({
                                 <option value="">
                                     {projects.length === 0 ? "No projects available" : "Select Project"}
                                 </option>
-                                {projects.filter(project => (project.workspaceId === defWorkSpaceId)).map(project => (
+                                {projects.filter(project => (project.workspaceId == defWorkSpaceId)).map(project => (
                                     <option key={project.id} value={project.id.toString()}>
                                         {project.name} (ID: {project.id})
                                     </option>

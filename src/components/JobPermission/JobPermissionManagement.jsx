@@ -118,7 +118,7 @@ const JobPermissionManagement = ({defId, users}) => {
     }
 
   const getUserData = async (userWorkspaces) => {
-  const filteredUserWork = userWorkspaces.filter(userWorkspace => userWorkspace.workspaceID === defId);
+  const filteredUserWork = userWorkspaces.filter(userWorkspace => userWorkspace.workspaceID == defId);
   
   const userIds = [...new Set(filteredUserWork.map(work => work.userID))];
   const uniqueUsers = userIds.map(id => users.find(u => u.id === id)).filter(Boolean);
@@ -150,7 +150,7 @@ const JobPermissionManagement = ({defId, users}) => {
                         onChange={(e) => setSelectedProject(e.target.value)}
                     >
                         <option value="">Select Project</option>
-                        {projects.filter(project => (project.status === 1 && project.workspaceId === defId)).
+                        {projects.filter(project => (project.status === 1 && project.workspaceId == defId)).
                             map(project => (
                             <option key={project.id} value={project.id}>{project.name}</option>
                         ))}
@@ -165,7 +165,7 @@ const JobPermissionManagement = ({defId, users}) => {
                         disabled={!selectedProject}
                     >
                         <option value="">Select Job</option>
-                        {jobs.filter(job => job.projectId === parseInt(selectedProject)).map(job => (
+                        {jobs.filter(job => (job.status == 1 && job.projectId === parseInt(selectedProject))).map(job => (
                             <option key={job.id} value={job.id}>{job.name}</option>
                         ))}
                     </select>
