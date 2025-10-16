@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import Modal from './Modal';
 import './NewNoteModal.css';
@@ -6,14 +6,13 @@ import './NewNoteModal.css';
 const NewNoteModal = ({
     isOpen,
     onClose,
-    projects =[],
+    projects,
     jobs = [],
     refreshNotes,
     addSiteNote,
     onUploadDocument,
     prefilledData = null,
     defWorkSpaceId
-    
 }) => {
     const [activeTab, setActiveTab] = useState('journal');
     const [selectedProject, setSelectedProject] = useState('');
@@ -28,55 +27,84 @@ const NewNoteModal = ({
     const [errors, setErrors] = useState({});
     const [error, setError] = useState(null);
     const [selectedFile, setSelectedFile] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
     
+    const fileInputRef = useRef(null);
     const [isSaving, setIsSaving] = useState(false);
     const [apiError, setApiError] = useState(null);
-    console.log(projects)
 
-      const allowedFileTypes = {
-    // Images
-    'image/jpeg': ['.jpg', '.jpeg'],
-    'image/png': ['.png'],
-    'image/gif': ['.gif'],
-    'image/webp': ['.webp'],
-    'image/svg+xml': ['.svg'],
-    
-    // Documents
-    'application/pdf': ['.pdf'],
-    'application/msword': ['.doc'],
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
-    'application/vnd.ms-excel': ['.xls'],
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
-    'application/vnd.ms-powerpoint': ['.ppt'],
-    'application/vnd.openxmlformats-officedocument.presentationml.presentation': ['.pptx'],
-    'text/plain': ['.txt'],
-    
-    // Audio
-    'audio/mpeg': ['.mp3'],
-    'audio/wav': ['.wav'],
-    'audio/ogg': ['.ogg'],
-    'audio/aac': ['.aac'],
-    
-    // Video
-    'video/mp4': ['.mp4'],
-    'video/mpeg': ['.mpeg'],
-    'video/ogg': ['.ogv'],
-    'video/webm': ['.webm'],
-    'video/quicktime': ['.mov'],
-    'video/x-msvideo': ['.avi']
-  };
+    // Debug logging
+    useEffect(() => {
+        console.log('NewNoteModal - defWorkSpaceId:', defWorkSpaceId);
+        console.log('NewNoteModal - projects:', projects);
+    }, [defWorkSpaceId, projects]);
 
-  const MAX_FILE_SIZE = 5 * 1024 * 1024;
-  const isValidFileType = (file) => {
-    return Object.keys(allowedFileTypes).includes(file.type);
-  };
-  const isValidFileSize = (file) => {
-    return file.size <= MAX_FILE_SIZE;
-  };
+    const allowedFileTypes = {
+        // Images
+        'image/jpeg': ['.jpg', '.jpeg'],
+        'image/png': ['.png'],
+        'image/gif': ['.gif'],
+        'image/webp': ['.webp'],
+        'image/svg+xml': ['.svg'],
+        
+        // Documents
+        'application/pdf': ['.pdf'],
+        'application/msword': ['.doc'],
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+        'application/vnd.ms-excel': ['.xls'],
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+        'application/vnd.ms-powerpoint': ['.ppt'],
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation': ['.pptx'],
+        'text/plain': ['.txt'],
+        
+        // Audio
+        'audio/mpeg': ['.mp3'],
+        'audio/wav': ['.wav'],
+        'audio/ogg': ['.ogg'],
+        'audio/aac': ['.aac'],
+        
+        // Video
+        'video/mp4': ['.mp4'],
+        'video/mpeg': ['.mpeg'],
+        'video/ogg': ['.ogv'],
+        'video/webm': ['.webm'],
+        'video/quicktime': ['.mov'],
+        'video/x-msvideo': ['.avi']
+    };
 
-   
-      // Get filtered projects based on workspace
+    const MAX_FILE_SIZE = 5 * 1024 * 1024;
+    const isValidFileType = (file) => {
+        return Object.keys(allowedFileTypes).includes(file.type);
+    };
+    const isValidFileSize = (file) => {
+        return file.size <= MAX_FILE_SIZE;
+    };
 
+    // Fixed loading state logic
+    useEffect(() => {
+        if (isOpen) {
+            if (defWorkSpaceId) {
+                setIsLoading(false);
+            } else {
+                setIsLoading(true);
+            }
+        }
+    }, [isOpen, defWorkSpaceId]);
+
+    // Get filtered projects based on workspace
+    const getFilteredProjects = () => {
+        if (!defWorkSpaceId) {
+            console.log('No defWorkSpaceId available');
+            return [];
+        }
+        const filtered = projects.filter(project => 
+            Number(project.workspaceId) === Number(defWorkSpaceId)
+        );
+        console.log(`Filtered projects for workspace ${defWorkSpaceId}:`, filtered);
+        return filtered;
+    };
+
+    const filteredProjects = getFilteredProjects();
 
     useEffect(() => {
         if (selectedProject) {
@@ -108,6 +136,7 @@ const NewNoteModal = ({
                 }
                 
                 if (prefilledData.job) {
+                    // Job will be set in the separate useEffect
                 }
             } else {
                 setSelectedProject('');
@@ -154,37 +183,20 @@ const NewNoteModal = ({
 
         try {
             const user = JSON.parse(localStorage.getItem('user'));
-            /* 
-            
-            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/SiteNote/AddSiteNote`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    note: noteContent,
-                    date: new Date(selectedDate).toISOString(),
-                    jobId: selectedJob,
-                    userId: user.id,
-                })
-            }); */
             const noteData = {
                 note: noteContent,
                 date: new Date(selectedDate).toISOString(),
                 jobId: selectedJob,
                 userId: user.id,
             }; 
-            /* if(response.ok){
-                const siteNoteId = response.siteNoteId;
-            } */
+            
             const savedNote = await addSiteNote(noteData);
             const siteNoteId = savedNote.siteNoteId; 
 
             if (!siteNoteId) {
                 throw new Error("Failed to retrieve SiteNoteId from the saved note.");
             } 
-            //const siteNoteId = response.siteNoteId
-            console.log(siteNoteId)
+            
             console.log("Journal note saved successfully. SiteNoteId:", siteNoteId);
 
             for (const doc of documents) {
@@ -194,7 +206,7 @@ const NewNoteModal = ({
                     const uploadResult = await onUploadDocument(doc.name, doc.file, siteNoteId);
                     
                     if (uploadResult.success) {
-                        console.log(`Document "${doc.name}" uploaded successfully.`);
+                        console.log(`Document "${doc.name}" uploaded successfully.");
                     } else {
                         console.error(`Failed to upload document "${doc.name}":`, uploadResult.error);
                     }
@@ -236,20 +248,23 @@ const NewNoteModal = ({
 
     const handleDocumentFileChange = (e) => {
         const file = e.target.files[0];
-    setError('');
+        setError('');
 
-    if (!isValidFileType(file)) {
-      setError('Invalid file type! ');
-      setSelectedFile(null);
-      return;
-    }
+        if (!file) return;
 
-    if (!isValidFileSize(file)) {
-      setError(`File size too large. Maximum allowed size is 5MB.`);
-      setSelectedFile(null);
-      return;
-    }
-        setNewDocument(prev => ({ ...prev, file: e.target.files[0] }));
+        if (!isValidFileType(file)) {
+            setError('Invalid file type! ');
+            setSelectedFile(null);
+            return;
+        }
+
+        if (!isValidFileSize(file)) {
+            setError(`File size too large. Maximum allowed size is 5MB.`);
+            setSelectedFile(null);
+            return;
+        }
+        
+        setNewDocument(prev => ({ ...prev, file: file }));
     };
 
     const handleDocumentSubmit = () => {
@@ -325,14 +340,24 @@ const NewNoteModal = ({
                                 }}
                             >
                                 <option value="">
-                                    {projects.length === 0 ? "No projects available" : "Select Project"}
+                                    {!defWorkSpaceId 
+                                        ? "Select a workspace first" 
+                                        : isLoading 
+                                        ? "Loading projects..." 
+                                        : filteredProjects.length === 0
+                                        ? "No projects found for this workspace"
+                                        : "Select Project"
+                                    }
                                 </option>
-                                {projects.filter(project => (project.workspaceId === defWorkSpaceId)).map(project => (
+                                {defWorkSpaceId && filteredProjects.map(project => (
                                     <option key={project.id} value={project.id.toString()}>
                                         {project.name} (ID: {project.id})
                                     </option>
                                 ))}
                             </select>
+                            {defWorkSpaceId && filteredProjects.length === 0 && !isLoading && (
+                                <p className="info-message">No projects available for workspace {defWorkSpaceId}</p>
+                            )}
                         </div>
 
                         <div className="form-group">
@@ -525,7 +550,6 @@ NewNoteModal.propTypes = {
     refreshNotes: PropTypes.func.isRequired,
     addSiteNote: PropTypes.func.isRequired,
     onUploadDocument: PropTypes.func.isRequired,
-    onDeleteDocument: PropTypes.func.isRequired,
     projects: PropTypes.arrayOf(
         PropTypes.shape({
             id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,

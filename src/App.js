@@ -599,8 +599,9 @@ function App() {
       const jobsData = await jobsRes.jobs;
       
       setProjects(projectsData.map(p => ({
-        id: p.id.toString(),
-        name: p.name
+        id: p.id,
+        name: p.name,
+        workspaceId: p.workspaceId
       })));
       
       setJobs(jobsData.map(j => ({

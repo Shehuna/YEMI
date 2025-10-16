@@ -732,19 +732,6 @@ const Dashboard = ({
              
           </button>
           
-          {showNewModal && (
-            <NewNoteModal
-              isOpen={showNewModal}
-              onClose={handleCloseNewModal}
-              addSiteNote={addSiteNote}  
-              refreshNotes={refreshNotes}
-              projects={projects}     
-              jobs={jobs}
-              onUploadDocument={handleUploadDocumentWrapper}
-              prefilledData={prefilledData}
-              defWorkSpaceId={defaultUserWorkspaceID}
-            />
-          )}
         </div>
   
         <div className="hierarchy-filters">
@@ -934,6 +921,7 @@ const Dashboard = ({
           onUploadDocument={handleUploadDocumentWrapper} 
           onDeleteDocument={handleDeleteDocumentWrapper} 
           prefilledData={prefilledData}
+          defWorkSpaceId={defaultUserWorkspaceID}
         />
       )}
       {showEditModal && selectedNote && ( 
