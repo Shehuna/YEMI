@@ -197,7 +197,7 @@ useEffect(() => {
                         onChange={(e) => setSelectedProject(e.target.value)}
                     >
                         <option value="">Select Project</option>
-                        {projects.map(project => (
+                        {projects.filter(project => (project.status === 1 && project.workspaceId === defWorkID)).map(project => (
                             <option key={project.id} value={project.id}>{project.name}</option>
                         ))}
                     </select>

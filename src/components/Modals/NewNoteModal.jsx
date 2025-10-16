@@ -123,7 +123,7 @@ const NewNoteModal = ({
             setIsSaving(false);
             setApiError(null);
         }
-    }, [isOpen, prefilledData, projects]);
+    }, [isOpen, prefilledData, projects, defWorkSpaceId]);
 
     useEffect(() => {
         if (prefilledData && prefilledData.job && selectedProject) {
