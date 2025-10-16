@@ -144,3 +144,44 @@ form {
   cursor: not-allowed;
   text-decoration: none;
 }
+.password-input-group {
+  position: relative;
+}
+
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrapper input {
+  width: 100%;
+  padding-right: 40px; 
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  padding: 5px;
+  border-radius: 3px;
+  transition: color 0.2s ease;
+}
+
+.password-toggle-btn:hover {
+  color: #007bff;
+  background: rgba(0, 123, 255, 0.1);
+}
+
+.password-toggle-btn:disabled {
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+.password-toggle-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}

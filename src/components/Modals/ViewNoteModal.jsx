@@ -18,7 +18,6 @@ const ViewNoteModal = ({ noteId, onClose, documents = [], currentTheme, onViewAt
             ).sort((a, b) => new Date(a.date) - new Date(b.date));
 
             setFilteredDocuments(filtered);
-
             setTimeout(() => {
                 if (chatContainerRef.current) {
                     chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
@@ -82,7 +81,7 @@ const ViewNoteModal = ({ noteId, onClose, documents = [], currentTheme, onViewAt
                 <div className="message-header">
                     <span className="sender-name">{doc.userName}</span>
                     <span className="message-time">
-                        {formatDate(doc.noteDate)} - {formatTime(doc.noteDate)}
+                        {formatDate(doc.date)} - {formatTime(doc.date)}
                     </span>
                 </div>
                 <div className="message-text">
@@ -98,7 +97,7 @@ const ViewNoteModal = ({ noteId, onClose, documents = [], currentTheme, onViewAt
                     onClick={() => onViewAttachments(doc)} 
                     title={`View ${doc.documentCount} attached file(s)`}
                 >
-                     <span className="document-count-badge">{doc.documentCount}</span>
+                     <span className="document-count-badge">({doc.documentCount}) </span>
                     <i className="fas fa-paperclip"></i>
                 </button>
             </div>
