@@ -35,6 +35,12 @@ const UserManagement = () => {
      const [confirmNewPass, setConfirmNewPass] = useState('')
 
      const API_URL = process.env.REACT_APP_API_BASE_URL
+     const isSignUpFlow = initialAddUserState;
+     useEffect(() => {
+        if (!isSignUpFlow) {
+            fetchUsers();
+        }
+    }, [isSignUpFlow]);
  
      useEffect(() => {
          fetchUsers();
@@ -159,6 +165,14 @@ const UserManagement = () => {
             profilePictureBase64: null,
         })
         setErrors({}); 
+         if (isSignUpFlow) {
+                setTimeout(() => {
+                    navigate('/login');
+                }, 1500); 
+            } else {
+                // If this was from the admin panel, refresh users
+                fetchUsers();
+            }
 
     } catch (error) {
         console.error('Error creating user:', error);
@@ -302,7 +316,11 @@ const UserManagement = () => {
 
     if (query.get('action') === 'create') {
         window.history.replaceState(null, '', window.location.pathname);
+         if (isSignUpFlow) {
+                navigate('/login');
+            }
     }
+    
 };
 
     const handleSignUpRedirect = () => {
@@ -311,6 +329,8 @@ const UserManagement = () => {
 
     return (
         <div className="settings-content">
+            {!isSignUpFlow && (
+                <>
                  <div className="settings-action-buttons">
                      <button className="btn-primary" onClick={() => setIsAddUserOpen(true)}>
                                  Add 
@@ -345,7 +365,8 @@ const UserManagement = () => {
                              ))}
                      </select>
                  </div>
-                
+                </>
+            )}
                 <Modal
                     isOpen={isAddUserOpen}
                     onClose={closeAddUserModal} 
@@ -435,12 +456,14 @@ const UserManagement = () => {
                         className="btn-primary" 
                         onClick={handleCreateUser}
                         disabled={!isAddFormValid()}>
-                        Create User
+                        {isSignUpFlow ? "Create Account" : "Create User"}
                         </button>
                     </div>
                     
                 </Modal>
                 
+                {!isSignUpFlow && (
+                <>
                 <Modal
                     isOpen={isEditUserOpen}
                     onClose={() => {
@@ -651,6 +674,8 @@ const UserManagement = () => {
                             </button>
                         </div>
                 </Modal>
+              </>
+            )}   
         </div>
         
     )

@@ -8,6 +8,7 @@ const Login = ({ onLogin }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/api/UserManagement/Login`;
 
@@ -37,14 +38,14 @@ const Login = ({ onLogin }) => {
           onLogin(data.user);
           navigate('/dashboard');
         } else {
-          throw new Error('Login failed: Invalid data received.');
+          throw new Error('Login failed. Please check your username/password.');
         }
       } else {
-        throw new Error(data.message || 'Login failed. Please check your username/password.');
+        throw new Error( 'Login failed. Please check your username/password.');
       }
     } catch (err) {
       console.error('Login error:', err);
-      setError(err.message || 'An unexpected error occurred. Please try again later.');
+      setError('Login failed. Please check your username/password.');
     } finally {
       setIsLoading(false);
     }
@@ -61,6 +62,9 @@ const Login = ({ onLogin }) => {
     setUsername('');
     setPassword('');
     setError(null);
+  };
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -80,17 +84,27 @@ const Login = ({ onLogin }) => {
               required
             />
           </div>
-          <div className="input-group">
+          <div className="input-group password-input-group">
             <label htmlFor="password">Password:</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter password"
-              disabled={isLoading}
-              required
-            />
+            <div className="password-input-wrapper">
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter password"
+                disabled={isLoading}
+                required
+              />
+              <button
+                type="button"
+                className="password-toggle-btn"
+                onClick={togglePasswordVisibility}
+                disabled={isLoading}
+              >
+                <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+              </button>
+            </div>
           </div>
           <div className="signup-link-group">
             <span className="signup-text">Don't have an account?</span>
@@ -100,7 +114,7 @@ const Login = ({ onLogin }) => {
               onClick={handleSignUpRedirect}
               disabled={isLoading}
             >
-               Sign up
+                  Sign up
             </button>
           </div>
           {error && <div className="error-message">{error}</div>}
