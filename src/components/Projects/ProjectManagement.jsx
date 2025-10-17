@@ -74,7 +74,7 @@ const ProjectManagement = ({workspaceId}) => {
             const result = data.projects
             console.log(result)
             const filterResults = result.filter((res)=>{
-                return res.workspaceId == workspaceId && res.status === 1
+                return res.workspaceId == workspaceId 
             })
             setFilteredProjects(filterResults|| []);
             

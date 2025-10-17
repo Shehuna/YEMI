@@ -601,7 +601,8 @@ function App() {
       setProjects(projectsData.map(p => ({
         id: p.id,
         name: p.name,
-        workspaceId: p.workspaceId
+        workspaceId: p.workspaceId,
+        status: p.status
       })));
       
       setJobs(jobsData.map(j => ({
