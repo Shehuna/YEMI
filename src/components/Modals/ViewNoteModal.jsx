@@ -81,7 +81,7 @@ const ViewNoteModal = ({ noteId, onClose, documents = [], currentTheme, onViewAt
                 <div className="message-header">
                     <span className="sender-name">{doc.userName}</span>
                     <span className="message-time">
-                        {formatDate(doc.date)} - {formatTime(doc.date)}
+                        {formatDate(doc.noteDate)} - {formatTime(doc.noteDate)}
                     </span>
                 </div>
                 <div className="message-text">
