@@ -206,9 +206,10 @@ const JobManagment = ({defWorkId}) => {
                     value={selectedJob}
                     onChange={(e) => setSelectedJob(e.target.value)}
                 >
+                    <option value="">Select a Job</option>
                     {jobs
                         .filter(job => {
-                            const project = projects.find(p => (p.id === job.projectId && p.workspaceId === defWorkId));
+                            const project = projects.find(p => (p.id === job.projectId && p.workspaceId == defWorkId));
                             return project && project.status === 1; // Only include jobs from active projects
                         })
                         .map(job => {
@@ -247,7 +248,7 @@ const JobManagment = ({defWorkId}) => {
                         >
                             <option value="">Select Project</option>
                             {projects 
-                                .filter(project => (project.status === 1 && project.workspaceId === defWorkId)) // Only show active projects
+                                .filter(project => (project.workspaceId == defWorkId)) // Only show active projects
                                 .map(project => (
                                     <option key={project.id} value={project.id}>{project.name}</option>
                                 ))}
