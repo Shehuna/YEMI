@@ -9,6 +9,7 @@ import UserManagement from "./components/Users/UserManagement";
 function App() {
   const [notes, setNotes] = useState([]);
   const [userId, setUserId]= useState(0)
+  const [userRole, setUserRole] = useState('')
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(50);
   const [defaultWorkspace, setDefaultWorkspace] = useState('')
@@ -96,7 +97,7 @@ function App() {
         console.log(data)
         setDefaultWorkspace(data.user.defaultWorkspaceId)
         fetchDefaultWorkspace(data.user.defaultWorkspaceId)
-        
+        setUserRole(data.user.role)
         setLoading(false);  
         return;
       }
@@ -664,7 +665,7 @@ function App() {
                     notes={notes} 
                     userid={userId}
                     workspaces={workspaces}
-                    
+                    userrole={userRole}
                     defaultUserWorkspaceID={defaultWorkspace}
                     defaultUserWorkspaceName={userDefaultWork}
                     onUpdateDefaultWorkspace={updateDefaultWorkspace}

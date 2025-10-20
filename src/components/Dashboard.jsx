@@ -10,6 +10,7 @@ import ViewNoteModal from './Modals/ViewNoteModal';
 const Dashboard = ({ 
   notes,
   userid,
+  userrole,
   refreshNotes, 
   addSiteNote, 
   updateNote, 
@@ -893,7 +894,7 @@ const Dashboard = ({
           defWorkID={defaultUserWorkspaceID}
           role={role}
           onUpdateDefaultWorkspace={onUpdateDefaultWorkspace}
-          
+          userRole={userrole}
         />
       )}
 
