@@ -36,6 +36,7 @@ function App() {
     }, []);
 
   const fetchNotes = async () => {
+    console.log('fetching')
     if (loadingRef.current) return;
     
     loadingRef.current = true;
@@ -109,13 +110,7 @@ function App() {
       loadingRef.current = false;
     }
   }
-  
-  /* 
-
-  const handleRefresh = () => {
-    setOnRefresh(prev => prev + 1);
-  }; */
-
+ 
   const updateDefaultWorkspace = (newDefId, newDefName) => {
     setDefaultWorkspace(newDefId)
     setUserDefaultWork(newDefName)
@@ -261,9 +256,6 @@ function App() {
     setUserDefaultWork('')
   };
  
-  const refreshNote = () =>{
-    fetchInitialData()
-  }
   const fetchInitialData = async () => {
     setLoading(true);
     setError(null);
@@ -504,7 +496,7 @@ function App() {
   };
 
   const updateNote = async (id, updatedData) => {
-    console.log(updatedData)
+    
     try {
       const url = `${process.env.REACT_APP_API_BASE_URL}/api/SiteNote/UpdateSiteNote/${id}`;
 
@@ -514,10 +506,6 @@ function App() {
           jobId: updatedData.JobId,
           userId: updatedData.UserId,
         };
-
-      /* const formData = new FormData();
-      formData.append("Note", updatedData.Note);
-      formData.append("Date", updatedData.Date); */
 
       const response = await fetch(url, {
         method: "PUT",
@@ -552,13 +540,7 @@ function App() {
   
   const addSiteNote = async (siteNoteData) => {
     try {
-    /* const formData = new FormData();
-    formData.append("Note", siteNoteData.Note);
-    formData.append("Date", siteNoteData.Date);
-    formData.append("JobId", siteNoteData.JobId);
-    formData.append("UserId", siteNoteData.UserId); */
-
-    const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/SiteNote/AddSiteNote`, {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/SiteNote/AddSiteNote`, {
       method: "POST",
       headers: {
                     'Content-Type': 'application/json',
@@ -669,7 +651,7 @@ function App() {
                     defaultUserWorkspaceID={defaultWorkspace}
                     defaultUserWorkspaceName={userDefaultWork}
                     onUpdateDefaultWorkspace={updateDefaultWorkspace}
-                    refreshNotes={refreshNote} 
+                    refreshNotes={fetchInitialData} 
                     addSiteNote={addSiteNote} 
                     updateNote={updateNote}
                     projects={projects} 

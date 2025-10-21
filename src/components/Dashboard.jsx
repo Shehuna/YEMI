@@ -173,7 +173,7 @@ const Dashboard = ({
         fetchUserWorkspaceRole();
     }
       
-  }, [userid, defaultUserWorkspaceID]); 
+  }, [userid, defaultUserWorkspaceID, notes]); 
 
   const filteredNotes = useMemo(() => {
     
@@ -306,6 +306,7 @@ const Dashboard = ({
       });
   
        if (response.ok) {
+        
         const data = await response.json();
         const userWorkspaces = data.userWorkspaces || [];
         
@@ -324,7 +325,7 @@ const Dashboard = ({
     }
   }
 
- const fetchWorkspaceByUserId = async (workspaces) => {
+/*  const fetchWorkspaceByUserId = async (workspaces) => {
     console.log(workspaces)
     for (let i = 0; i < workspaces.length; i++) {
             if(workspaces[i].userID === userid){
@@ -333,7 +334,7 @@ const Dashboard = ({
         }
     } 
     
-  }
+  } */
 
   const handleOpenSettings = () => {
         

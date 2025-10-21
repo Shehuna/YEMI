@@ -179,7 +179,8 @@ const EditNoteModal = ({ note, onClose, refreshNotes, updateNote, uploadDocument
         date: correctedDate,
         projectId: projectId || '',
         jobId: jobId || '',
-        note: note.note || ''
+        note: note.note || '',
+        userId: note.userId
       });
 
       if (note.id) {
@@ -337,7 +338,6 @@ const EditNoteModal = ({ note, onClose, refreshNotes, updateNote, uploadDocument
   
       if (result && (result.success || result.id || result.message)) {
         onClose();
-        refreshNotes();
       } else {
         throw new Error('Failed to save note: No success confirmation from server');
       }
